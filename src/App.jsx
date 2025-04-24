@@ -1,35 +1,29 @@
-import { Routes, Route, Link } from "react-router-dom"; // Import Routes, Route, Link
 import LoginPage from "./pages/LoginPage"; // Import trang Login
 import DashboardPage from "./pages/DashboardPage";
 import { ProtectedRoute } from "./components/ProtectedRoute"; // Import ProtectedRoute
 import PublicProfilePage from "./pages/PublicProfilePage";
+import { Routes, Route, Link, Navigate } from "react-router-dom"; // Thêm Navigate vào đây
 
 function App() {
   return (
     <>
-      {" "}
-      {/* Có thể dùng Fragment hoặc div bọc ngoài */}
-      {/* Có thể thêm Header/Navbar ở đây (nằm ngoài Routes) */}
-      {/* <nav>
-         <Link to="/">Home</Link> | <Link to="/login">Login</Link>
-      </nav> */}
-      {/* ---------------------------------------- */}
+      {/* ... */}
       <Routes>
-        {" "}
-        {/* Định nghĩa các routes */}
+        {/* Các route cụ thể */}
         <Route path="/login" element={<LoginPage />} />
-        {/* ---------------------------------------- */}
-        {/* <Route path="/register" element={<div>Register Page</div>} /> */}
+        {/* <Route path="/register" ... /> */}
+        {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
         </Route>
+        {/* Redirect từ trang gốc sang trang login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />{" "}
+        {/* <-- THÊM DÒNG NÀY */}
+        {/* Route động cho trang public - Đặt ở cuối */}
         <Route path="/:username" element={<PublicProfilePage />} />
-        {/* <Route path="/" element={<div>Home Page</div>} /> */}
-        {/* TODO: Add other routes later */}
-        {/* ---------------------------------------- */}
+        {/* <Route path="*" ... /> */}
       </Routes>
-      {/* ---------------------------------------- */}
-      {/* Có thể thêm Footer ở đây (nằm ngoài Routes) */}
+      {/* ... */}
     </>
   );
 }
