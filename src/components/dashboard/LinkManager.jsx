@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import axios from "axios";
 import { AuthContext } from "../../context/AuthContext"; // Điều chỉnh đường dẫn nếu cần
+import api from "../../api/axiosConfig";
 
 import {
   DndContext,
@@ -84,11 +84,7 @@ export default function LinkManager() {
     const config = createAuthConfig();
     // if (!config) return;
     try {
-      await axios.put(
-        "http://localhost:3001/api/user/links/reorder",
-        { orderedLinkIds },
-        config
-      );
+      await api.put("/api/user/links/reorder", { orderedLinkIds }, config);
       console.log("Links reordered successfully on backend.");
       // Có thể thêm thông báo thành công tự ẩn đi
       // setSuccessMessage("Đã cập nhật thứ tự link!");

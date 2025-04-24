@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import axios from "axios"; // Hoặc instance axios đã cấu hình
+import api from "../../api/axiosConfig";
 
 export default function ProfileSettings() {
   const { authState } = useContext(AuthContext); // Lấy trạng thái auth, đặc biệt là token
@@ -41,10 +41,7 @@ export default function ProfileSettings() {
       setError(null);
 
       try {
-        const response = await axios.get(
-          "http://localhost:3001/api/user/profile/me",
-          config
-        );
+        const response = await api.get("/api/user/profile/me", config);
 
         if (response.data) {
           setBio(response.data.bio || "");

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext"; // Import AuthContext
+import api from "../api/axiosConfig";
 
 export default function LoginPage() {
   const [email, setEmail] = useState(""); // State cho ô email
@@ -21,13 +21,10 @@ export default function LoginPage() {
     try {
       // Gọi API login của backend bằng axios
       // Quan trọng: Đảm bảo URL backend chính xác!
-      const response = await axios.post(
-        "http://localhost:3001/api/auth/login",
-        {
-          email: email,
-          password: password,
-        }
-      );
+      const response = await api.post("/api/auth/login", {
+        email: email,
+        password: password,
+      });
       // Nếu API trả về thành công (status 2xx)
       console.log("Login Response:", response.data); // In ra data trả về (có token)
       setLoading(false); // Hết loading

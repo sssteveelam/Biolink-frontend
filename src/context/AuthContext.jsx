@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
-
+import api from "../api/axiosConfig";
 // 1. Tạo Context Object
 // Giá trị mặc định là null hoặc một object có cấu trúc tương tự state ban đầu
 export const AuthContext = createContext(null);
@@ -36,10 +36,7 @@ export const AuthProvider = ({ children }) => {
         // Gọi API GET /api/auth/me
         console.log("AuthProvider: Verifying token with /api/auth/me...");
         // URL API backend
-        const response = await axios.get(
-          "http://localhost:3001/api/auth/me",
-          config
-        );
+        const response = await api.get("/api/auth/me", config);
 
         // Nếu request thành công (backend trả về 200 OK và user data)
         setAuthState({
