@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom"; // Import useParams để lấy username từ URL
-import axios from "axios";
+import api from "../api/axiosConfig";
 
 function PublicProfilePage() {
   const { username } = useParams();
@@ -23,8 +23,8 @@ function PublicProfilePage() {
       try {
         console.log(`Workspaceing public profile for username: ${username}`);
         // Gọi API public backend - URL đã được kiểm tra ở bước trước
-        const response = await axios.get(
-          `http://localhost:3001/api/profiles/${username.toLowerCase()}`
+        const response = await api.get(
+          `/api/profiles/${username.toLowerCase()}`
         );
         console.log("Fetched public profile data:", response.data);
         setProfileData(response.data);

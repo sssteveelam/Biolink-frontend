@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect } from "react";
-import axios from "axios";
 import api from "../api/axiosConfig";
 // 1. Tạo Context Object
 // Giá trị mặc định là null hoặc một object có cấu trúc tương tự state ban đầu
