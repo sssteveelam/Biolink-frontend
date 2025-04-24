@@ -1,3 +1,7 @@
+console.log(
+  ">>> VITE_API_BASE_URL from import.meta.env:",
+  import.meta.env.VITE_API_BASE_URL
+);
 import LoginPage from "./pages/LoginPage"; // Import trang Login
 import DashboardPage from "./pages/DashboardPage";
 import { ProtectedRoute } from "./components/ProtectedRoute"; // Import ProtectedRoute
