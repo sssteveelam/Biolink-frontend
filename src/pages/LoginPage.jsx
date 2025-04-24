@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext"; // Import AuthContext
 import api from "../api/axiosConfig";
 
@@ -141,6 +141,14 @@ export default function LoginPage() {
               </a>
             </div>
           </div> */}
+            <p className="text-sm text-center text-gray-100">
+              Chưa có tài khoản?{" "}
+              <Link // <-- Đổi từ <a> sang <Link>
+                to="/register" // <-- Trỏ đến route /register
+                className="font-semibold text-white hover:text-indigo-100 hover:underline transition duration-150 ease-in-out">
+                Đăng ký ngay
+              </Link>
+            </p>
 
             {/* Nút Submit */}
             <div>

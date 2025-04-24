@@ -3,6 +3,7 @@ import DashboardPage from "./pages/DashboardPage";
 import { ProtectedRoute } from "./components/ProtectedRoute"; // Import ProtectedRoute
 import PublicProfilePage from "./pages/PublicProfilePage";
 import { Routes, Route, Link, Navigate } from "react-router-dom"; // Thêm Navigate vào đây
+import RegisterPage from "./pages/RegisterPage"; // Import
 
 function App() {
   return (
@@ -11,7 +12,7 @@ function App() {
       <Routes>
         {/* Các route cụ thể */}
         <Route path="/login" element={<LoginPage />} />
-        {/* <Route path="/register" ... /> */}
+        <Route path="/register" element={<RegisterPage />} />
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
