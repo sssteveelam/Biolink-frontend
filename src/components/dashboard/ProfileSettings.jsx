@@ -87,8 +87,8 @@ export default function ProfileSettings() {
     setSuccessMessage("");
 
     try {
-      const response = await axios.put(
-        "http://localhost:3001/api/user/profile/me",
+      const response = await api.put(
+        "/api/user/profile/me",
         { bio, themeColor }, // Dữ liệu gửi lên backend
         config // Gửi kèm token trong header
       );

@@ -115,10 +115,7 @@ export default function LinkManager() {
       setError(null);
 
       try {
-        const response = await axios.get(
-          "http://localhost:3001/api/user/links",
-          config
-        );
+        const response = await api.get("/api/user/links", config);
 
         setLinks(response.data || []); // Set links hoặc mảng rỗng
       } catch (err) {
@@ -151,8 +148,8 @@ export default function LinkManager() {
     setAddError("");
 
     try {
-      const response = await axios.post(
-        "http://localhost:3001/api/user/links",
+      const response = await api.post(
+        "/api/user/links",
         { title: newLinkTitle, url: newLinkUrl },
         config
       );
@@ -185,10 +182,7 @@ export default function LinkManager() {
     // Có thể set trạng thái loading riêng cho việc xóa nếu muốn
 
     try {
-      await axios.delete(
-        `http://localhost:3001/api/user/links/${linkId}`,
-        config
-      );
+      await api.delete(`/api/user/links/${linkId}`, config);
       // Xóa link khỏi state để UI cập nhật
       setLinks((prevLinks) => prevLinks.filter((link) => link._id !== linkId));
       // Có thể thêm thông báo thành công
@@ -240,8 +234,8 @@ export default function LinkManager() {
     setEditError("");
 
     try {
-      const response = await axios.put(
-        `http://localhost:3001/api/user/links/${editingLinkId}`, // API cập nhật link,
+      const response = await api.put(
+        `/api/user/links/${editingLinkId}`, // API cập nhật link,
         { title: editFormData.title, url: editFormData.url },
         config
       );
