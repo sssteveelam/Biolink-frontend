@@ -10,36 +10,13 @@ export default function ProfileSettings() {
   const [isLoading, setIsLoading] = useState(true); // Loading khi fetch data ban đầu
   const [isSaving, setIsSaving] = useState(false); // Loading khi bấm nút lưu
 
-  // Hàm để tạo config header với token
-  const createAuthConfig = () => {
-    if (!authState.token) {
-      console.error("No auth token found for API request !");
-
-      return null;
-    }
-
-    return {
-      headers: {
-        Authorization: `Bearer ${authState.token}`,
-      },
-    };
-  };
-
   // Fetch profile data khi component mount
   useEffect(() => {
     const fetchProfile = async () => {
-      const config = createAuthConfig();
-
-      if (!config) {
-        toast.error("Authencation token not found");
-        setIsLoading(false);
-        return;
-      }
-
       setIsLoading(true);
 
       try {
-        const response = await api.get("/api/user/profile/me", config);
+        const response = await api.get("/api/user/profile/me");
 
         if (response.data) {
           setBio(response.data.bio || "");
@@ -73,20 +50,12 @@ export default function ProfileSettings() {
   // Hàm xử lý khi submit form cập nhật profile
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
-
-    const config = createAuthConfig();
-    if (!config) {
-      toast.error("Authentication token not found. Cannot save.");
-      return;
-    }
-
     setIsSaving(true);
 
     try {
       const response = await api.put(
         "/api/user/profile/me",
-        { bio, themeColor }, // Dữ liệu gửi lên backend
-        config // Gửi kèm token trong header
+        { bio, themeColor } // Dữ liệu gửi lên backend
       );
 
       // Cập nhật lại state với dữ liệu mới nhất từ server (tùy chọn)

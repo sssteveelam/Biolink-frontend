@@ -18,24 +18,12 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem("authToken");
     if (storedToken) {
       console.log("Token found in local storage:", storedToken);
-      // *** Tạm thời: Nếu có token thì coi như đã đăng nhập ***
-      // Lý tưởng nhất là phải gửi token này lên backend để xác thực
-      // và lấy lại thông tin user mới nhất (sẽ làm sau)
-      // Ở đây mình chưa có thông tin user, chỉ biết là có token
-      // ---------------------------------
-      // *** Bước quan trọng: Gửi token lên backend để xác thực ***
-      try {
-        // cấu hình để gửi tokenb trong header Authorization
-        const config = {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-          },
-        };
 
+      try {
         // Gọi API GET /api/auth/me
         console.log("AuthProvider: Verifying token with /api/auth/me...");
         // URL API backend
-        const response = await api.get("/api/auth/me", config);
+        const response = await api.get("/api/auth/me");
 
         // Nếu request thành công (backend trả về 200 OK và user data)
         setAuthState({

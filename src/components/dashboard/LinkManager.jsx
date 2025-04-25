@@ -37,12 +37,6 @@ export default function LinkManager() {
   });
   const [isSavingEdit, setIsSavingEdit] = useState(false); // Loading khi bấm nút Lưu (sửa)
 
-  // --- Helper function tạo config ---
-  const createAuthConfig = () => {
-    if (!authState.token) return null;
-    return { headers: { Authorization: `Bearer ${authState.token}` } };
-  };
-
   // ------- For drag drop func
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -79,15 +73,9 @@ export default function LinkManager() {
 
   // Hàm gọi API reorder (tách riêng cho rõ ràng)
   const callReorderApi = async (orderedLinkIds) => {
-    const config = createAuthConfig();
-    // if (!config) return;
     try {
-      await api.put("/api/user/links/reorder", { orderedLinkIds }, config);
-      console.log("Links reordered successfully on backend.");
-      // Có thể thêm thông báo thành công tự ẩn đi
-      // setSuccessMessage("Đã cập nhật thứ tự link!");
+      await api.put("/api/user/links/reorder", { orderedLinkIds });
       toast.success("Đã cập nhật thứ tự link!");
-      // setTimeout(() => setSuccessMessage(""), 2000);
     } catch (err) {
       console.error(
         "Error calling reorder API:",
@@ -97,26 +85,18 @@ export default function LinkManager() {
       toast.error(
         "Lỗi khi lưu thứ tự link mới. Vui lòng tải lại trang để xem thứ tự đúng."
       );
-      // TODO: Lý tưởng nhất là phải rollback lại state links về trạng thái trước khi kéo thả nếu API lỗi
-      // Hoặc đơn giản là fetch lại toàn bộ links từ đầu
     }
   };
 
   // --- Fetch links khi component mount ---
   useEffect(() => {
     const fetchLinks = async () => {
-      const config = createAuthConfig();
-      if (!config) {
-        toast.error("Authentication token not found.");
-        setIsLoading(false);
-        return;
-      }
       setIsLoading(true);
 
       try {
-        const response = await api.get("/api/user/links", config);
+        const response = await api.get("/api/user/links");
 
-        setLinks(response.data || []); // Set links hoặc mảng rỗng
+        setLinks(response.data || []);
       } catch (err) {
         console.error(
           "Error fetching links:",
@@ -140,17 +120,13 @@ export default function LinkManager() {
       return;
     }
 
-    const config = createAuthConfig();
-    if (!config) return;
-
     setIsAdding(true);
 
     try {
-      const response = await api.post(
-        "/api/user/links",
-        { title: newLinkTitle, url: newLinkUrl },
-        config
-      );
+      const response = await api.post("/api/user/links", {
+        title: newLinkTitle,
+        url: newLinkUrl,
+      });
 
       // Thêm link mới vào đầu danh sách hiện tại để UI cập nhật ngay
       setLinks((prevLinks) => [response.data, ...prevLinks]);
@@ -177,11 +153,8 @@ export default function LinkManager() {
       return;
     }
 
-    const config = createAuthConfig();
-    if (!config) return;
-
     try {
-      await api.delete(`/api/user/links/${linkId}`, config);
+      await api.delete(`/api/user/links/${linkId}`);
       // Xóa link khỏi state để UI cập nhật
       setLinks((prevLinks) => prevLinks.filter((link) => link._id !== linkId));
       // Có thể thêm thông báo thành công
@@ -199,7 +172,6 @@ export default function LinkManager() {
   const handleStartEdit = (link) => {
     setEditingLinkId(link._id);
     setEditFormData({ title: link.title, url: link.url });
-    toast.success("Thay đổi thành công");
   };
 
   // Hàm được gọi khi nhấn nút "Hủy" trong lúc sửa
@@ -224,16 +196,13 @@ export default function LinkManager() {
       toast.error("Vui lòng nhập cả Tiêu đề và URL.");
       return;
     }
-    const config = createAuthConfig();
-    if (!config || !editingLinkId) return; // Cần có token và link ID đang sửa
 
     setIsSavingEdit(true);
 
     try {
       const response = await api.put(
         `/api/user/links/${editingLinkId}`, // API cập nhật link,
-        { title: editFormData.title, url: editFormData.url },
-        config
+        { title: editFormData.title, url: editFormData.url }
       );
       // Cập nhật lại mảng links trong state với dữ liệu mới nhất từ server
       setLinks((prevLinks) =>

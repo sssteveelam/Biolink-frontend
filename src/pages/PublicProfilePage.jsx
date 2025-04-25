@@ -21,12 +21,9 @@ function PublicProfilePage() {
       setProfileData(null);
 
       try {
-        console.log(`Workspaceing public profile for username: ${username}`);
-        // Gọi API public backend - URL đã được kiểm tra ở bước trước
         const response = await api.get(
           `/api/profiles/${username.toLowerCase()}`
         );
-        console.log("Fetched public profile data:", response.data);
         setProfileData(response.data);
       } catch (err) {
         console.error(
