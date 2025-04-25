@@ -2,11 +2,11 @@ import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext"; // Import AuthContext
 import api from "../api/axiosConfig";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [email, setEmail] = useState(""); // State cho ô email
   const [password, setPassword] = useState(""); // State cho ô password
-  const [error, setError] = useState(null); // State để hiển thị lỗi nếu có
   const [loading, setLoading] = useState(false); // State để biết khi nào đang chờ API trả về
   // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate(); // Khởi tạo hook navigate
@@ -15,7 +15,6 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Ngăn trang bị reload khi submit form
-    setError(null); // Xóa lỗi cũ trước khi gọi API mới
     setLoading(true); // Báo là đang xử lý
 
     try {
@@ -25,36 +24,14 @@ export default function LoginPage() {
         email: email,
         password: password,
       });
-      // Nếu API trả về thành công (status 2xx)
-      console.log("Login Response:", response.data); // In ra data trả về (có token)
       setLoading(false); // Hết loading
 
-      // -0----------------------------------------
       // --- Thêm dòng này để lưu token ---
       if (response.data && response.data.token) {
         login(response.data.token, response.data.user);
-        console.log("Token saved to localStorage:", response.data.token);
       }
-      // -0----------------------------------------
-
-      // --- Các bước xử lý sau khi login thành công (Sẽ làm kỹ hơn ở các bước sau) ---
-
-      // 1. Lưu token vào đâu đó (ví dụ: localStorage) để dùng cho các request sau
-      // localStorage.setItem('authToken', response.data.token);
-      // console.log("Token saved to localStorage");
-
-      // 2. Cập nhật trạng thái đăng nhập toàn cục (ví dụ: dùng Context API)
-      // setUser(response.data.user); // Giả sử có hàm setUser từ Context
-
-      // 3. Chuyển hướng người dùng đến trang Dashboard (ví dụ)
-      // navigate('/dashboard');
-
-      // Tạm thời chỉ hiện alert để biết thành công
-      //alert("Đăng nhập thành công! Kiểm tra Console để xem token.");
-      // -0----------------------------------------
 
       // Giờ có thể chuyển hướng người dùng
-      console.log("Navigating to dashboard...");
       navigate("/dashboard");
     } catch (err) {
       // Nếu API trả về lỗi (status 4xx, 5xx)
@@ -64,8 +41,7 @@ export default function LoginPage() {
         err.response ? err.response.data : err.message
       );
 
-      // Lấy message lỗi từ response của backend (nếu có) để hiển thị
-      setError(
+      toast.error(
         err.response?.data?.message || "Đã có lỗi xảy ra khi đăng nhập."
       );
     }
@@ -141,14 +117,6 @@ export default function LoginPage() {
               </a>
             </div>
           </div> */}
-            <p className="text-sm text-center text-gray-100">
-              Chưa có tài khoản?{" "}
-              <Link // <-- Đổi từ <a> sang <Link>
-                to="/register" // <-- Trỏ đến route /register
-                className="font-semibold text-white hover:text-indigo-100 hover:underline transition duration-150 ease-in-out">
-                Đăng ký ngay
-              </Link>
-            </p>
 
             {/* Nút Submit */}
             <div>
@@ -162,22 +130,14 @@ export default function LoginPage() {
             </div>
           </form>
 
-          {/* Hiển thị lỗi */}
-          {error && (
-            <p className="mb-4 text-sm text-center text-red-600 bg-red-100 p-2 rounded-md">
-              {error}
-            </p>
-          )}
-
           {/* Link đăng ký */}
           <p className="text-sm text-center text-gray-100">
             Chưa có tài khoản?{" "}
-            <a
-              href="#"
-              // Làm link nổi bật hơn, có thể thêm gạch chân khi hover
+            <Link // <-- Đổi từ <a> sang <Link>
+              to="/register" // <-- Trỏ đến route /register
               className="font-semibold text-white hover:text-indigo-100 hover:underline transition duration-150 ease-in-out">
               Đăng ký ngay
-            </a>
+            </Link>
           </p>
         </div>
       </div>

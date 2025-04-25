@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import api from "../../api/axiosConfig";
+import toast from "react-hot-toast";
 
 export default function ProfileSettings() {
   const { authState } = useContext(AuthContext); // Lấy trạng thái auth, đặc biệt là token
@@ -8,8 +9,6 @@ export default function ProfileSettings() {
   const [themeColor, setThemeColor] = useState("#ffffff"); // Giá trị mặc định
   const [isLoading, setIsLoading] = useState(true); // Loading khi fetch data ban đầu
   const [isSaving, setIsSaving] = useState(false); // Loading khi bấm nút lưu
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState("");
 
   // Hàm để tạo config header với token
   const createAuthConfig = () => {
@@ -32,13 +31,12 @@ export default function ProfileSettings() {
       const config = createAuthConfig();
 
       if (!config) {
-        setError("Authencation token not found");
+        toast.error("Authencation token not found");
         setIsLoading(false);
         return;
       }
 
       setIsLoading(true);
-      setError(null);
 
       try {
         const response = await api.get("/api/user/profile/me", config);
@@ -62,7 +60,7 @@ export default function ProfileSettings() {
             err.response ? err.response.data : err.message
           );
 
-          setError("Loi khi tai thong tin profile");
+          toast.error("Lỗi khi tải thông tin profile");
         }
       } finally {
         setIsLoading(false);
@@ -78,13 +76,11 @@ export default function ProfileSettings() {
 
     const config = createAuthConfig();
     if (!config) {
-      setError("Authentication token not found. Cannot save.");
+      toast.error("Authentication token not found. Cannot save.");
       return;
     }
 
     setIsSaving(true);
-    setError(null);
-    setSuccessMessage("");
 
     try {
       const response = await api.put(
@@ -96,16 +92,16 @@ export default function ProfileSettings() {
       // Cập nhật lại state với dữ liệu mới nhất từ server (tùy chọn)
       setBio(response.data.bio || "");
       setThemeColor(response.data.themeColor || "#ffffff");
-      setSuccessMessage("Cập nhật profile thành công!");
-
-      // Tự động ẩn thông báo thành công sau vài giây
-      setTimeout(() => setSuccessMessage(""), 3000);
+      // thong bao thanh cong
+      toast.success("Cập nhật profile thành công!");
     } catch (err) {
       console.error(
         "Error updating profile:",
         err.response ? err.response.data : err.message
       );
-      setError(err.response?.data?.message || "Lỗi khi cập nhật profile.");
+      toast.error(
+        `${err.response?.data?.message || "Lỗi khi cập nhật profile."}`
+      );
     } finally {
       setIsSaving(false);
     }
@@ -122,16 +118,6 @@ export default function ProfileSettings() {
         Cài đặt Profile
       </h3>
       <form onSubmit={handleProfileUpdate} className="space-y-4">
-        {/* Hiển thị lỗi hoặc thông báo thành công */}
-        {error && (
-          <p className="text-sm text-red-600 bg-red-100 p-2 rounded">{error}</p>
-        )}
-        {successMessage && (
-          <p className="text-sm text-green-600 bg-green-100 p-2 rounded">
-            {successMessage}
-          </p>
-        )}
-
         <div>
           <label
             htmlFor="bio"

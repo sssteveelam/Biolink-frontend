@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Thêm Link
 import api from "../api/axiosConfig"; // Import instance axios đã cấu hình
+import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   // Dùng một state object để quản lý các input cho gọn
@@ -12,8 +13,6 @@ export default function RegisterPage() {
   });
 
   const [passwordConfirm, setPasswordConfirm] = useState(""); // State riêng cho xác nhận mật khẩu
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(""); // State cho thông báo thành công
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -29,19 +28,15 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setError(null);
-    setSuccessMessage("");
-
     // --- Kiểm tra phía Client trước khi gửi lên server ---
     if (formData.password !== passwordConfirm) {
-      setError("Mật khẩu và xác nhận mật khẩu không khớp!");
-      return; // Dừng lại nếu không khớp
-    }
-    if (formData.password.length < 6) {
-      setError("Mật khẩu phải có ít nhất 6 ký tự.");
+      toast.error("Mật khẩu và xác nhận mật khẩu không khớp!");
       return;
     }
-    // Thêm các validation khác nếu cần (vd: username format)
+    if (formData.password.length < 6) {
+      toast.error("Mật khẩu phải có ít nhất 6 ký tự.");
+      return;
+    }
 
     setLoading(true);
 
@@ -51,7 +46,7 @@ export default function RegisterPage() {
 
       console.log("Register Response:", response.data);
       setLoading(false);
-      setSuccessMessage(
+      toast.success(
         "Đăng ký thành công! Bạn sẽ được chuyển đến trang đăng nhập."
       );
 
@@ -69,9 +64,10 @@ export default function RegisterPage() {
         "Register Error:",
         err.response ? err.response.data : err.message
       );
-      // Hiển thị lỗi từ backend (ví dụ: trùng username/email)
-      setError(err.response?.data?.message || "Đã có lỗi xảy ra khi đăng ký.");
-      console.error("");
+
+      toast.error(
+        `${err.response?.data?.message} || "Đã có lỗi xảy ra khi đăng ký."`
+      );
     }
   };
 
@@ -81,18 +77,6 @@ export default function RegisterPage() {
         <h2 className="text-3xl font-bold text-center text-white mb-6">
           Tạo tài khoản Biolink
         </h2>
-
-        {/* Thông báo lỗi hoặc thành công */}
-        {error && (
-          <p className="text-sm text-center text-red-600 bg-red-100 p-3 rounded-md">
-            {error}
-          </p>
-        )}
-        {successMessage && (
-          <p className="text-sm text-center text-green-700 bg-green-100 p-3 rounded-md">
-            {successMessage}
-          </p>
-        )}
 
         <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Username */}

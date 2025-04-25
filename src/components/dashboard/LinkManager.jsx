@@ -17,18 +17,17 @@ import {
   verticalListSortingStrategy, // Chiến lược sắp xếp theo chiều dọc
 } from "@dnd-kit/sortable";
 import SortableLinkItem from "./SortableLinkItem"; // Import component mới
+import toast from "react-hot-toast";
 
 export default function LinkManager() {
   const { authState } = useContext(AuthContext);
   const [links, setLinks] = useState([]); // State chứa mảng các link
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   // State cho form thêm link mới
   const [newLinkTitle, setNewLinkTitle] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [isAdding, setIsAdding] = useState(false); // Loading khi thêm link
-  const [addError, setAddError] = useState(""); // Lỗi riêng cho form add
 
   // State cho việc sửa link
   const [editingLinkId, setEditingLinkId] = useState(null); // Lưu ID của link đang được sửa, null nghĩa là không sửa link nào
@@ -37,7 +36,6 @@ export default function LinkManager() {
     url: "",
   });
   const [isSavingEdit, setIsSavingEdit] = useState(false); // Loading khi bấm nút Lưu (sửa)
-  const [editError, setEditError] = useState(""); // Lỗi riêng cho form sửa
 
   // --- Helper function tạo config ---
   const createAuthConfig = () => {
@@ -88,13 +86,15 @@ export default function LinkManager() {
       console.log("Links reordered successfully on backend.");
       // Có thể thêm thông báo thành công tự ẩn đi
       // setSuccessMessage("Đã cập nhật thứ tự link!");
+      toast.success("Đã cập nhật thứ tự link!");
       // setTimeout(() => setSuccessMessage(""), 2000);
     } catch (err) {
       console.error(
         "Error calling reorder API:",
         err.response ? err.response.data : err.message
       );
-      setError(
+
+      toast.error(
         "Lỗi khi lưu thứ tự link mới. Vui lòng tải lại trang để xem thứ tự đúng."
       );
       // TODO: Lý tưởng nhất là phải rollback lại state links về trạng thái trước khi kéo thả nếu API lỗi
@@ -107,12 +107,11 @@ export default function LinkManager() {
     const fetchLinks = async () => {
       const config = createAuthConfig();
       if (!config) {
-        setError("Authentication token not found.");
+        toast.error("Authentication token not found.");
         setIsLoading(false);
         return;
       }
       setIsLoading(true);
-      setError(null);
 
       try {
         const response = await api.get("/api/user/links", config);
@@ -123,7 +122,7 @@ export default function LinkManager() {
           "Error fetching links:",
           err.response ? err.response.data : err.message
         );
-        setError("Lỗi khi tải danh sách links.");
+        toast.error("Lỗi khi tải danh sách links.");
       } finally {
         setIsLoading(false);
       }
@@ -137,7 +136,7 @@ export default function LinkManager() {
     e.preventDefault();
 
     if (!newLinkTitle || !newLinkUrl) {
-      setAddError("Vui lòng nhập cả Tiêu đề và URL.");
+      toast.error("Vui lòng nhập cả Tiêu đề và URL.");
       return;
     }
 
@@ -145,7 +144,6 @@ export default function LinkManager() {
     if (!config) return;
 
     setIsAdding(true);
-    setAddError("");
 
     try {
       const response = await api.post(
@@ -158,12 +156,15 @@ export default function LinkManager() {
       setLinks((prevLinks) => [response.data, ...prevLinks]);
       setNewLinkTitle(""); // Reset form
       setNewLinkUrl(""); // Reset form
-      // Có thể thêm thông báo thành công nếu muốn
+
+      toast.success("Thêm link thành công!");
     } catch (err) {
       console.error(
         "Error adding link:",
         err.response ? err.response.data : err.message
       );
+
+      toast.error("Thêm link thất bại!");
     } finally {
       setIsAdding(false);
     }
@@ -179,19 +180,18 @@ export default function LinkManager() {
     const config = createAuthConfig();
     if (!config) return;
 
-    // Có thể set trạng thái loading riêng cho việc xóa nếu muốn
-
     try {
       await api.delete(`/api/user/links/${linkId}`, config);
       // Xóa link khỏi state để UI cập nhật
       setLinks((prevLinks) => prevLinks.filter((link) => link._id !== linkId));
       // Có thể thêm thông báo thành công
+      toast.success("Xóa link thành công!");
     } catch (err) {
       console.err(
         "Error deleteing link:",
         err.response ? err.response.data : err.message
       );
-      setError(err.response?.data?.message || "Lỗi khi xóa link."); // Hiển thị lỗi chung
+      toast.error(`${err.response?.data?.message || "Lỗi khi xóa link."}`);
     }
   };
 
@@ -199,16 +199,13 @@ export default function LinkManager() {
   const handleStartEdit = (link) => {
     setEditingLinkId(link._id);
     setEditFormData({ title: link.title, url: link.url });
-    setError(""); // Xóa lỗi chung (nếu có)
-    setAddError(""); // Xóa lỗi form add (nếu có)
-    setEditError(""); // Xóa lỗi form edit cũ (nếu có)
+    toast.success("Thay đổi thành công");
   };
 
   // Hàm được gọi khi nhấn nút "Hủy" trong lúc sửa
   const handleCancelEdit = () => {
     setEditingLinkId(null);
     setEditFormData({ title: "", url: "" });
-    setEditError("");
   };
 
   // Hàm được gọi khi thay đổi nội dung trong form sửa
@@ -224,14 +221,13 @@ export default function LinkManager() {
   // Hàm được gọi khi nhấn nút "Lưu" trong lúc sửa
   const handleUpdateLink = async () => {
     if (!editFormData.title || !editFormData.url) {
-      setEditError("Vui lòng nhập cả Tiêu đề và URL.");
+      toast.error("Vui lòng nhập cả Tiêu đề và URL.");
       return;
     }
     const config = createAuthConfig();
     if (!config || !editingLinkId) return; // Cần có token và link ID đang sửa
 
     setIsSavingEdit(true);
-    setEditError("");
 
     try {
       const response = await api.put(
@@ -248,12 +244,13 @@ export default function LinkManager() {
 
       handleCancelEdit(); // Thoát khỏi chế độ sửa sau khi lưu thành công
       // Có thể thêm thông báo thành công
+      toast.success("Cập nhật link thông công!");
     } catch (err) {
       console.error(
         "Error updating link:",
         err.response ? err.response.data : err.message
       );
-      setEditError(err.response?.data?.message || "Lỗi khi cập nhật link.");
+      toast.error(`${err.response?.data?.message || "Lỗi khi cập nhật link."}`);
     } finally {
       setIsSavingEdit(false);
     }
@@ -276,7 +273,7 @@ export default function LinkManager() {
         onSubmit={handleAddLink}
         className="mb-6 p-4 border rounded-md bg-gray-50 space-y-3">
         <h4 className="text-lg font-medium text-gray-700">Thêm Link Mới</h4>
-        {addError && <p className="text-sm text-red-600">{addError}</p>}
+
         <div>
           <label
             htmlFor="newLinkTitle"
@@ -321,11 +318,7 @@ export default function LinkManager() {
       <h4 className="text-lg font-medium text-gray-700 mb-3">
         Danh sách Links
       </h4>
-      {error && (
-        <p className="text-sm text-red-600 bg-red-100 p-2 rounded mb-3">
-          {error}
-        </p>
-      )}
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter} // Chiến lược phát hiện va chạm

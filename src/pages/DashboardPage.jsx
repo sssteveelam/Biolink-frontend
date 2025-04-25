@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import ProfileSettings from "../components/dashboard/ProfileSettings"; // Kiểm tra lại đường dẫn
 import LinkManager from "../components/dashboard/LinkManager"; // Hoặc '../components/LinkManager' tùy cấu trúc
+import toast from "react-hot-toast";
 
 function DashboardPage() {
   const { authState, logout } = useContext(AuthContext);
@@ -10,6 +11,7 @@ function DashboardPage() {
 
   const handleLogout = () => {
     logout();
+    toast.success("Hẹn gặp lại!");
     navigate("/login");
   };
 
