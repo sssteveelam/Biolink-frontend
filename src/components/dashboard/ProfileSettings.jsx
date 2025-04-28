@@ -2,27 +2,31 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import api from "../../api/axiosConfig";
 import toast from "react-hot-toast";
+import { Save, Loader2 } from "lucide-react"; // Thêm icon Save và Loader2
 
 export default function ProfileSettings() {
-  const { authState } = useContext(AuthContext); // Lấy trạng thái auth, đặc biệt là token
+  const { authState } = useContext(AuthContext);
   const [bio, setBio] = useState("");
-  const [themeColor, setThemeColor] = useState("#ffffff"); // Giá trị mặc định
-  const [isLoading, setIsLoading] = useState(true); // Loading khi fetch data ban đầu
-  const [isSaving, setIsSaving] = useState(false); // Loading khi bấm nút lưu
+  const [themeColor, setThemeColor] = useState("#ffffff");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch profile data khi component mount
+  // --- Fetch profile data ---
   useEffect(() => {
     const fetchProfile = async () => {
       setIsLoading(true);
-
       try {
         const response = await api.get("/api/user/profile/me");
-
         if (response.data) {
           setBio(response.data.bio || "");
-          setThemeColor(response.data.themeColor);
+          // Đảm bảo themeColor luôn là một string mã màu hợp lệ
+          setThemeColor(
+            response.data.themeColor &&
+              /^#[0-9A-F]{6}$/i.test(response.data.themeColor)
+              ? response.data.themeColor
+              : "#ffffff"
+          );
         } else {
-          // Nếu API trả về null/404, giữ giá trị state mặc định
           setBio("");
           setThemeColor("#ffffff");
         }
@@ -36,131 +40,141 @@ export default function ProfileSettings() {
             "Error fetching profile:",
             err.response ? err.response.data : err.message
           );
-
           toast.error("Lỗi khi tải thông tin profile");
         }
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchProfile();
-  }, [authState.token]); // Chỉ chạy lại nếu token thay đổi (ví dụ: sau khi login)
+  }, [authState.token]);
 
-  // Hàm xử lý khi submit form cập nhật profile
+  // --- Handle profile update ---
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setIsSaving(true);
-
     try {
-      const response = await api.put(
-        "/api/user/profile/me",
-        { bio, themeColor } // Dữ liệu gửi lên backend
-      );
-
-      // Cập nhật lại state với dữ liệu mới nhất từ server (tùy chọn)
+      const response = await api.put("/api/user/profile/me", {
+        bio,
+        themeColor,
+      });
+      // Cập nhật lại state để đảm bảo đồng bộ sau khi lưu
       setBio(response.data.bio || "");
-      setThemeColor(response.data.themeColor || "#ffffff");
-      // thong bao thanh cong
+      setThemeColor(
+        response.data.themeColor &&
+          /^#[0-9A-F]{6}$/i.test(response.data.themeColor)
+          ? response.data.themeColor
+          : "#ffffff"
+      );
       toast.success("Cập nhật profile thành công!");
     } catch (err) {
       console.error(
         "Error updating profile:",
         err.response ? err.response.data : err.message
       );
-      toast.error(
-        `${err.response?.data?.message || "Lỗi khi cập nhật profile."}`
-      );
+      toast.error(err.response?.data?.message || "Lỗi khi cập nhật profile.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Hiển thị trạng thái loading ban đầu
+  // --- Render Loading State ---
   if (isLoading) {
-    return <div className="text-center p-4">Đang tải thông tin profile...</div>;
+    return (
+      // Container loading với style glassy
+      <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg overflow-hidden border border-white/15 p-6 md:p-8 flex justify-center items-center min-h-[200px]">
+        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+        <span className="sr-only">Đang tải cài đặt profile...</span>
+      </div>
+    );
   }
-  // Giao diện form
+
+  // --- Render Main Content ---
   return (
-    <div className="mt-6 p-6 bg-white rounded-lg shadow">
-      <h3 className="text-xl font-semibold mb-4 text-gray-800">
-        Cài đặt Profile
-      </h3>
-      <form onSubmit={handleProfileUpdate} className="space-y-4">
-        <div>
-          <label
-            htmlFor="bio"
-            className="block text-sm font-medium text-gray-700 mb-1">
-            Tiểu sử (Bio)
-          </label>
-          <textarea
-            id="bio"
-            name="bio"
-            rows="3"
-            maxLength="160" // Giới hạn giống trong schema
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Giới thiệu ngắn về bạn..."
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}></textarea>
-          <p className="text-xs text-gray-500 mt-1">{bio.length}/160 ký tự</p>
-        </div>
-
-        <div>
-          <label
-            htmlFor="themeColor"
-            className="block text-sm font-medium text-gray-700 mb-1">
-            Màu chủ đề (Theme Color)
-          </label>
-          <div className="flex items-center space-x-2">
-            <input
-              id="themeColor"
-              name="themeColor"
-              type="color" // Dùng input type color cho dễ chọn màu
-              className="h-10 w-14 p-1 border border-gray-300 rounded-md cursor-pointer"
-              value={themeColor}
-              onChange={(e) => setThemeColor(e.target.value)}
+    // Container chính - ĐÃ ÁP DỤNG STYLE "GLASSY" VÀ VIỀN MỜ
+    <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg overflow-hidden border border-white/15">
+      {/* Thêm padding bên trong */}
+      <div className="p-6 md:p-8">
+        <h3 className="text-xl font-semibold mb-6 text-gray-800">
+          Cài đặt Profile
+        </h3>
+        <form onSubmit={handleProfileUpdate} className="space-y-5">
+          {" "}
+          {/* Tăng nhẹ space-y */}
+          {/* Bio */}
+          <div>
+            <label
+              htmlFor="bio"
+              className="block text-sm font-medium text-gray-600 mb-1">
+              Tiểu sử (Bio)
+            </label>
+            <textarea
+              id="bio"
+              name="bio"
+              rows="3"
+              maxLength="160"
+              // Style textarea nhất quán, viền mềm hơn, thêm transition
+              className="block w-full px-3 py-2 border border-gray-300/70 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out"
+              placeholder="Giới thiệu ngắn về bạn..."
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
             />
-            {/* Hiển thị mã màu dạng text để user có thể copy/paste */}
-            <input
-              type="text"
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              value={themeColor}
-              onChange={(e) => setThemeColor(e.target.value)} // Cho phép nhập tay mã màu
-              placeholder="#ffffff"
-            />
+            <p className="text-xs text-gray-500 mt-1 text-right">
+              {bio.length}/160 ký tự
+            </p>{" "}
+            {/* Căn phải cho đẹp */}
           </div>
-        </div>
-
-        <div>
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="inline-flex justify-center py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-black bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
-            {isSaving ? (
-              <div role="status">
-                <svg
-                  aria-hidden="true"
-                  className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                  viewBox="0 0 100 101"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path
-                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                    fill="currentFill"
-                  />
-                </svg>
-                <span className="sr-only">Đang xử lý...</span>
-              </div>
-            ) : (
-              "Lưu thay đổi"
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
+          {/* Theme Color */}
+          <div>
+            <label
+              htmlFor="themeColor"
+              className="block text-sm font-medium text-gray-600 mb-1">
+              Màu chủ đề
+            </label>
+            <div className="flex items-center space-x-3">
+              {/* Color Picker */}
+              <input
+                id="themeColorPicker" // Đổi id để tránh trùng với input text
+                name="themeColorPicker"
+                type="color"
+                // Style viền mềm hơn
+                className="h-10 w-14 p-1 border border-gray-300/70 rounded-md cursor-pointer shadow-sm"
+                value={themeColor}
+                onChange={(e) => setThemeColor(e.target.value)}
+              />
+              {/* Text Input for Color Code */}
+              <input
+                id="themeColorText" // Đổi id
+                name="themeColorText"
+                type="text"
+                // Style input nhất quán, viền mềm hơn, thêm transition
+                className="block w-full px-3 py-2 border border-gray-300/70 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out"
+                value={themeColor}
+                onChange={(e) => setThemeColor(e.target.value)} // Cho phép nhập tay mã màu
+                placeholder="#ffffff"
+                pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" // Pattern để validate mã hex cơ bản
+                title="Nhập mã màu dạng #rrggbb hoặc #rgb"
+              />
+            </div>
+          </div>
+          {/* Save Button */}
+          <div>
+            <button
+              type="submit"
+              disabled={isSaving}
+              // Style nút tương tự các nút khác, dùng gradient, chữ trắng, thêm icon
+              className="inline-flex items-center justify-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out">
+              {isSaving ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-5 h-5 mr-2" /> // Icon Save
+              )}
+              {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
+            </button>
+          </div>
+        </form>
+      </div>{" "}
+      {/* Kết thúc padding container */}
+    </div> // Kết thúc container chính ProfileSettings
   );
 }

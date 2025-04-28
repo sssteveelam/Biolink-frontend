@@ -1,68 +1,60 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { GripVertical, Save, X, Pencil, Trash2, Loader2 } from "lucide-react"; // Import icons cần thiết
 
-// Component này sẽ đại diện cho một dòng link có thể kéo thả
 function SortableLinkItem({
-  id, // ID của link, bắt buộc cho dnd-kit
-  link, // Dữ liệu của link (title, url)
-  isEditing, // Có đang ở chế độ sửa không?
-  editFormData, // Dữ liệu form sửa
-  handleEditFormChange, // Hàm xử lý thay đổi form sửa
-  handleUpdateLink, // Hàm lưu khi sửa
-  handleCancelEdit, // Hàm hủy khi sửa
-  handleStartEdit, // Hàm bắt đầu sửa
-  handleDeleteLink, // Hàm xóa link
-  isSavingEdit, // Có đang lưu edit không?
+  id,
+  link,
+  isEditing,
+  editFormData,
+  handleEditFormChange,
+  handleUpdateLink,
+  handleCancelEdit,
+  handleStartEdit,
+  handleDeleteLink,
+  isSavingEdit,
 }) {
   const {
-    attributes, // Các thuộc tính cần gắn vào element để kéo được
-    listeners, // Các trình nghe sự kiện cần gắn vào element hoặc drag handle
-    setNodeRef, // Ref để gắn vào element chính
-    transform, // Style transform để di chuyển element khi kéo
-    transition, // Style transition cho hiệu ứng mượt mà
-    isDragging, // Biến boolean cho biết item có đang bị kéo không
-  } = useSortable({ id }); // Hook chính của dnd-kit/sortable
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
 
-  // Style để áp dụng cho việc di chuyển và hiệu ứng
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1, // Làm mờ item khi đang kéo
-    zIndex: isDragging ? 10 : "auto", // Đảm bảo item đang kéo nổi lên trên
-    // touchAction: 'none', // Có thể cần cho thiết bị cảm ứng
+    transition: transition || "transform 250ms ease", // Thêm transition mặc định nếu chưa có
+    opacity: isDragging ? 0.7 : 1, // Giảm opacity hơn chút khi kéo
+    zIndex: isDragging ? 10 : "auto",
   };
 
   return (
-    // Gắn ref, style và các attributes, listeners vào thẻ li
     <li
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      className="p-3 border rounded-md bg-white shadow-sm touch-none flex items-center space-x-2">
-      {/* Có thể thêm icon Drag Handle ở đây và chỉ gắn listeners vào nó */}
+      // Bỏ border, shadow, dùng bg-white và hover nhẹ, bo góc
+      className={`bg-white rounded-lg flex items-center transition duration-150 ease-in-out ${
+        isDragging ? "shadow-lg" : "shadow-sm"
+      } ${isEditing ? "ring-2 ring-indigo-300 ring-offset-1" : ""}`} // Thêm ring khi đang sửa
+    >
+      {/* Drag Handle - Dùng icon GripVertical */}
       <span
-        className="cursor-grab text-gray-400 hover:text-gray-600"
+        className="p-3 cursor-grab touch-none text-gray-400 hover:text-gray-600"
+        {...attributes} // Gắn attributes vào đây để không bị conflict với các nút khác
         {...listeners}>
-        {" "}
-        {/* Gắn listener vào đây để kéo cả dòng */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
+        <GripVertical className="h-5 w-5" />
       </span>
 
-      {/* Phần còn lại của nội dung item (giống như trong LinkManager trước đây) */}
-      <div className="flex-grow min-w-0">
+      {/* Nội dung chính (padding nội bộ) */}
+      <div
+        className={`flex-grow min-w-0 py-3 pr-3 ${
+          isEditing ? "pl-1" : "pl-1"
+        }`}>
+        {" "}
+        {/* Điều chỉnh padding nội bộ */}
         {isEditing ? (
           /* --- Chế độ Sửa --- */
           <div className="space-y-2">
@@ -70,78 +62,87 @@ function SortableLinkItem({
             <input
               name="title"
               type="text"
-              className="block w-full px-2 py-1 border border-gray-300 rounded-md sm:text-sm"
+              // Style input nhất quán, viền mềm hơn, padding nhỏ hơn cho vừa list item
+              className="block w-full px-2.5 py-1.5 border border-gray-300/70 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+              placeholder="Tiêu đề link"
               value={editFormData.title}
               onChange={handleEditFormChange}
               required
+              autoFocus // Tự động focus vào input title khi bắt đầu sửa
             />
             {/* Input URL */}
             <input
               name="url"
               type="url"
-              className="block w-full px-2 py-1 border border-gray-300 rounded-md sm:text-sm"
+              className="block w-full px-2.5 py-1.5 border border-gray-300/70 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+              placeholder="https://example.com"
               value={editFormData.url}
               onChange={handleEditFormChange}
               required
             />
             {/* Nút Lưu/Hủy */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 pt-1">
+              {" "}
+              {/* Thêm pt-1 để tạo khoảng cách */}
               <button
+                type="button" // Quan trọng: type="button" để không submit form cha nếu có
                 onClick={handleUpdateLink}
                 disabled={isSavingEdit}
-                className="...">
+                // Nút Lưu: Style primary, kích thước nhỏ hơn
+                className="inline-flex items-center justify-center px-3 py-1 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out">
                 {isSavingEdit ? (
-                  <div role="status">
-                    <svg
-                      aria-hidden="true"
-                      className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                      viewBox="0 0 100 101"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                        fill="currentColor"
-                      />
-                      <path
-                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                        fill="currentFill"
-                      />
-                    </svg>
-                    <span className="sr-only">Đang lưu...</span>
-                  </div>
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
                 ) : (
-                  "Lưu"
+                  <Save className="w-4 h-4 mr-1" />
                 )}
+                {isSavingEdit ? "Lưu..." : "Lưu"}
               </button>
-              <button type="button" onClick={handleCancelEdit} className="...">
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                // Nút Hủy: Style secondary/ghost, kích thước nhỏ hơn
+                className="inline-flex items-center justify-center px-3 py-1 border border-gray-300/70 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                <X className="w-4 h-4 mr-1" /> {/* Icon Hủy (X) */}
                 Hủy
               </button>
             </div>
-            {/* Hiển thị lỗi edit nếu có */}
           </div>
         ) : (
           /* --- Chế độ Hiển thị --- */
-          <div className="flex items-center justify-between">
-            <div className="flex-1 min-w-0 mr-4">
-              <p className="text-sm font-medium text-gray-900 truncate">
+          <div className="flex items-center justify-between space-x-2">
+            {/* Thông tin link */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-800 truncate">
                 {link.title}
               </p>
               <a
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="...">
+                // Style link URL: màu xám, nhỏ hơn, truncate
+                className="text-xs text-gray-500 truncate block hover:text-indigo-600 transition duration-150 ease-in-out"
+                title={link.url} // Thêm title để xem full URL khi hover
+              >
                 {link.url}
               </a>
             </div>
-            <div className="flex-shrink-0 space-x-2">
-              <button onClick={() => handleStartEdit(link)} className="...">
-                Sửa
+            {/* Nút chức năng (Sửa/Xóa) */}
+            <div className="flex-shrink-0 flex items-center space-x-1">
+              {" "}
+              {/* Giảm space-x */}
+              {/* Nút Sửa - Dùng icon */}
+              <button
+                onClick={() => handleStartEdit(link)}
+                className="p-1.5 text-gray-500 hover:text-indigo-600 hover:bg-indigo-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 transition duration-150 ease-in-out"
+                aria-label="Sửa link">
+                <Pencil className="w-4 h-4" />
               </button>
+              {/* Nút Xóa - Dùng icon */}
               <button
                 onClick={() => handleDeleteLink(link._id)}
-                className="...">
-                Xóa
+                className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 transition duration-150 ease-in-out"
+                aria-label="Xóa link">
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           </div>
