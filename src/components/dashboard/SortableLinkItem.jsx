@@ -96,6 +96,7 @@ function SortableLinkItem({
                 className="block w-full mt-1 pl-3 pr-10 py-1.5 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                 <option value="link">Link đơn giản</option>
                 <option value="youtube">Nhúng Video YouTube</option>
+                <option value="spotify">Nhúng Spotify</option>
               </select>
             </div>
             {/* Nút Lưu/Hủy */}
@@ -136,11 +137,17 @@ function SortableLinkItem({
                 <span
                   className={`ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                     link.linkType === "youtube"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-blue-100 text-blue-800"
+                      ? "bg-red-100 text-red-800" // Giữ nguyên cho Youtube
+                      : link.linkType === "spotify"
+                      ? "bg-green-100 text-green-800" // Thêm màu xanh lá cho Spotify
+                      : "bg-blue-100 text-blue-800" // Mặc định cho 'link' hoặc không có type
                   }`}>
-                  {link.linkType || "link"}{" "}
-                  {/* Hiển thị type, mặc định là 'link' nếu không có */}
+                  {/* Hiển thị tên đẹp hơn */}
+                  {link.linkType === "youtube"
+                    ? "YouTube"
+                    : link.linkType === "spotify"
+                    ? "Spotify"
+                    : "Link"}
                 </span>
               </p>
               <a
