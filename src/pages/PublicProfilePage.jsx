@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../api/axiosConfig";
-import { Loader2, AlertTriangle } from "lucide-react"; // Import icons
+import { Loader2, AlertTriangle, CloudCog } from "lucide-react"; // Import icons
+import getYoutubeVideoId from "../utils/youtubeUtils";
 
 function PublicProfilePage() {
   const { username } = useParams();
@@ -148,27 +149,69 @@ function PublicProfilePage() {
           </p>
         )}
         {/* Danh sách Links */}
-        <div className="w-full flex flex-col items-stretch space-y-4">
-          {" "}
-          {/* items-stretch để nút rộng bằng container, giảm space-y */}
+        <div className="w-full max-w-lg flex flex-col items-center space-y-5">
           {links && links.length > 0 ? (
-            links.map((link) => (
-              <a
-                key={link._id}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                // Style nút link: Giữ hiệu ứng glassy, tinh chỉnh padding, bo góc, shadow, hover
-                className="block w-full px-6 py-4 bg-white bg-opacity-85 backdrop-blur-lg rounded-lg text-center text-base md:text-lg font-medium text-gray-800 shadow-md hover:shadow-xl hover:scale-[1.03] transform transition duration-200 ease-in-out border border-white/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white/80"
-                style={{ "--ring-offset-color": themeColor }} // Set màu offset cho ring dựa vào theme
-              >
-                {link.title}
-              </a>
-            ))
+            links.map((link) => {
+              // --- Kiểm tra loại link ---
+              console.log("link : ", link);
+              if (link.linkType === "youtube") {
+                const videoId = getYoutubeVideoId(link.url); // Lấy ID video
+                console.log("inside");
+                if (videoId) {
+                  // Nếu lấy được ID, render iframe
+                  return (
+                    // Responsive YouTube Embed Container
+                    <div
+                      key={link._id}
+                      className="w-full aspect-video overflow-hidden rounded-xl shadow-lg border border-gray-300/50">
+                      {/* aspect-video của Tailwind giúp giữ tỷ lệ 16:9 */}
+                      <iframe
+                        className="w-full h-full" // Đảm bảo iframe chiếm hết container
+                        src={`https://www.youtube.com/embed/${videoId}`}
+                        title={link.title || "YouTube video player"}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin" // Thêm referrerPolicy
+                        allowFullScreen></iframe>
+                    </div>
+                  );
+                } else {
+                  // Nếu URL không đúng định dạng Youtube, có thể hiện link thường kèm thông báo
+                  console.warn(
+                    `Invalid YouTube URL for link ${link._id}: ${link.url}`
+                  );
+                  return (
+                    <a
+                      key={link._id}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full px-8 py-5 bg-white bg-opacity-70 backdrop-blur-sm rounded-xl text-center text-lg font-semibold text-red-600 shadow-md hover:scale-105 transform transition duration-200 ease-in-out border border-red-300/50" // Đổi màu để báo lỗi
+                    >
+                      {link.title} (URL YouTube không hợp lệ)
+                    </a>
+                  );
+                }
+              } else {
+                // Mặc định: Render link thường dạng nút bấm (giữ nguyên code cũ của bạn)
+                console.log("loiiisdid");
+                return (
+                  <a
+                    key={link._id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full px-8 py-5 bg-white bg-opacity-90 backdrop-blur-md rounded-xl text-center text-xl font-semibold text-gray-900 shadow-lg hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40">
+                    {link.title}
+                  </a>
+                );
+              }
+              // --- Kết thúc kiểm tra loại link ---
+            })
           ) : (
             <p
-              className="text-center py-4"
-              style={{ color: subtleContrastColor }}>
+              className="text-lg"
+              style={{ color: getContrastColor(themeColor, 0.75) }}>
               Người dùng này chưa thêm link nào.
             </p>
           )}
