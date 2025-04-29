@@ -27,9 +27,13 @@ export default function LinkManager() {
   const [newLinkUrl, setNewLinkUrl] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [editingLinkId, setEditingLinkId] = useState(null);
-  const [editFormData, setEditFormData] = useState({ title: "", url: "" });
+  const [editFormData, setEditFormData] = useState({
+    title: "",
+    url: "",
+    linkType: "link",
+  });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
-
+  const [newLinkType, setNewLinkType] = useState("link");
   // --- Dnd Kit Setup ---
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), // Cần di chuột 1 chút mới kích hoạt kéo thả
@@ -107,11 +111,13 @@ export default function LinkManager() {
       const response = await api.post("/api/user/links", {
         title: newLinkTitle,
         url: newLinkUrl,
+        linkType: newLinkType, // <-- Gửi type đã chọn
       });
       setLinks((prevLinks) => [response.data, ...prevLinks]);
       setNewLinkTitle("");
       setNewLinkUrl("");
       toast.success("Thêm link thành công!");
+      setNewLinkType("link"); // <-- Reset type về mặc định
     } catch (err) {
       console.error(
         "Error adding link:",
@@ -140,7 +146,11 @@ export default function LinkManager() {
 
   const handleStartEdit = (link) => {
     setEditingLinkId(link._id);
-    setEditFormData({ title: link.title, url: link.url });
+    setEditFormData({
+      title: link.title,
+      url: link.url,
+      linkType: link.linkType || "link",
+    });
   };
 
   const handleCancelEdit = () => {
@@ -170,7 +180,9 @@ export default function LinkManager() {
       const response = await api.put(`/api/user/links/${editingLinkId}`, {
         title: editFormData.title,
         url: editFormData.url,
+        linkType: editFormData.linkType,
       });
+      console.log(response);
       setLinks((prevLinks) =>
         prevLinks.map((link) =>
           link._id === editingLinkId ? response.data : link
@@ -251,6 +263,25 @@ export default function LinkManager() {
               />
             </div>
           </div>
+          {/* type link */}
+          <div>
+            <label
+              htmlFor="newLinkType"
+              className="block text-sm font-medium text-gray-700 mb-1">
+              Loại nội dung
+            </label>
+            <select
+              id="newLinkType"
+              name="linkType"
+              value={newLinkType}
+              onChange={(e) => setNewLinkType(e.target.value)}
+              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+              <option value="link">Link đơn giản</option>
+              <option value="youtube">Nhúng Video YouTube</option>
+              {/* Thêm các option khác sau này nếu muốn */}
+            </select>
+          </div>
+
           <button
             type="submit"
             disabled={isAdding}

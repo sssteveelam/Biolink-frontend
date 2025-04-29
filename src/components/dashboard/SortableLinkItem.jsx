@@ -80,6 +80,24 @@ function SortableLinkItem({
               onChange={handleEditFormChange}
               required
             />
+            {/* link type */}
+            <div>
+              {/* Thêm mục chọn type */}
+              <label
+                htmlFor={`edit-type-${link._id}`}
+                className="text-xs font-medium text-gray-600">
+                Loại
+              </label>
+              <select
+                id={`edit-type-${link._id}`}
+                name="linkType" // Quan trọng: name khớp key trong editFormData
+                value={editFormData.linkType}
+                onChange={handleEditFormChange} // Dùng chung hàm change
+                className="block w-full mt-1 pl-3 pr-10 py-1.5 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                <option value="link">Link đơn giản</option>
+                <option value="youtube">Nhúng Video YouTube</option>
+              </select>
+            </div>
             {/* Nút Lưu/Hủy */}
             <div className="flex items-center space-x-2 pt-1">
               {" "}
@@ -111,18 +129,25 @@ function SortableLinkItem({
           /* --- Chế độ Hiển thị --- */
           <div className="flex items-center justify-between space-x-2">
             {/* Thông tin link */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-800 truncate">
+            <div className="flex-1 min-w-0 mr-4">
+              <p className="text-sm font-medium text-gray-900 truncate">
                 {link.title}
+                {/* Thêm hiển thị loại link bằng badge nhỏ */}
+                <span
+                  className={`ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                    link.linkType === "youtube"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-blue-100 text-blue-800"
+                  }`}>
+                  {link.linkType || "link"}{" "}
+                  {/* Hiển thị type, mặc định là 'link' nếu không có */}
+                </span>
               </p>
               <a
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                // Style link URL: màu xám, nhỏ hơn, truncate
-                className="text-xs text-gray-500 truncate block hover:text-indigo-600 transition duration-150 ease-in-out"
-                title={link.url} // Thêm title để xem full URL khi hover
-              >
+                className="...">
                 {link.url}
               </a>
             </div>
