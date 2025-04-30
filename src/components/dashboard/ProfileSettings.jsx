@@ -13,6 +13,7 @@ export default function ProfileSettings() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewSource, setPreviewSource] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [buttonStyle, setButtonStyle] = useState("rounded-lg"); // Giá trị khởi tạo nên giống default ở backend
 
   // --- Fetch profile data ---
   useEffect(() => {
@@ -30,9 +31,12 @@ export default function ProfileSettings() {
               ? response.data.themeColor
               : "#ffffff"
           );
+
+          setButtonStyle(response.data.buttonStyle || "rounded-lg"); // Lấy từ API hoặc dùng default
         } else {
           setBio("");
           setThemeColor("#ffffff");
+          setButtonStyle("rounded-lg"); // Reset về default nếu không có profile
         }
       } catch (err) {
         if (err.response && err.response.status === 404) {
@@ -61,6 +65,7 @@ export default function ProfileSettings() {
       const response = await api.put("/api/user/profile/me", {
         bio,
         themeColor,
+        buttonStyle,
       });
       // Cập nhật lại state để đảm bảo đồng bộ sau khi lưu
       setBio(response.data.bio || "");
@@ -70,6 +75,8 @@ export default function ProfileSettings() {
           ? response.data.themeColor
           : "#ffffff"
       );
+      setButtonStyle(response.data.buttonStyle || "rounded-lg");
+
       toast.success("Cập nhật profile thành công!");
     } catch (err) {
       console.error(
@@ -266,6 +273,68 @@ export default function ProfileSettings() {
               />
             </div>
           </div>
+          {/* Phần chọn kiểu nút */}
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-2">
+              Kiểu nút link
+            </label>
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              {" "}
+              {/* Dùng flex-wrap để xuống dòng nếu không đủ chỗ */}
+              {/* Option 1: Bo tròn */}
+              <div className="flex items-center">
+                <input
+                  id="style-rounded-full"
+                  name="buttonStyleOption"
+                  type="radio"
+                  value="rounded-full"
+                  checked={buttonStyle === "rounded-full"}
+                  onChange={(e) => setButtonStyle(e.target.value)}
+                  className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                />
+                <label
+                  htmlFor="style-rounded-full"
+                  className="ml-2 block text-sm text-gray-700">
+                  Bo tròn
+                </label>
+              </div>
+              {/* Option 2: Bo góc */}
+              <div className="flex items-center">
+                <input
+                  id="style-rounded-lg"
+                  name="buttonStyleOption"
+                  type="radio"
+                  value="rounded-lg"
+                  checked={buttonStyle === "rounded-lg"}
+                  onChange={(e) => setButtonStyle(e.target.value)}
+                  className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                />
+                <label
+                  htmlFor="style-rounded-lg"
+                  className="ml-2 block text-sm text-gray-700">
+                  Bo góc
+                </label>
+              </div>
+              {/* Option 3: Vuông */}
+              <div className="flex items-center">
+                <input
+                  id="style-rounded-none"
+                  name="buttonStyleOption"
+                  type="radio"
+                  value="rounded-none"
+                  checked={buttonStyle === "rounded-none"}
+                  onChange={(e) => setButtonStyle(e.target.value)}
+                  className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                />
+                <label
+                  htmlFor="style-rounded-none"
+                  className="ml-2 block text-sm text-gray-700">
+                  Vuông
+                </label>
+              </div>
+            </div>
+          </div>
+
           {/* Save Button */}
           <div>
             <button

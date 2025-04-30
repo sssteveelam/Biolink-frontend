@@ -26,7 +26,6 @@ function PublicProfilePage() {
         const response = await api.get(
           `/api/profiles/${username.toLowerCase()}`
         );
-        console.log(response);
         setProfileData(response.data);
       } catch (err) {
         console.error(
@@ -44,6 +43,10 @@ function PublicProfilePage() {
     };
     fetchPublicProfile();
   }, [username]);
+
+  // Lấy kiểu nút từ profile, nếu không có thì dùng kiểu default
+  const currentButtonStyle = profileData?.profile.buttonStyle || "rounded-lg";
+  console.log(profileData);
 
   // --- Render Loading ---
   if (isLoading) {
@@ -184,7 +187,7 @@ function PublicProfilePage() {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-full px-8 py-5 bg-white bg-opacity-70 backdrop-blur-sm rounded-xl text-center text-lg font-semibold text-red-600 shadow-md hover:scale-105 transform transition duration-200 ease-in-out border border-red-300/50" // Đổi màu để báo lỗi
+                      className={`block w-full px-8 py-5 bg-white bg-opacity-90 backdrop-blur-md text-center text-xl font-semibold text-gray-900 shadow-lg hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40 ${currentButtonStyle}`} // Thêm class động vào cuối
                     >
                       {link.title} (URL YouTube không hợp lệ)
                     </a>
@@ -221,7 +224,7 @@ function PublicProfilePage() {
                       href={link.url} // Vẫn dùng URL đã lưu, có thể nó là link share
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-full px-8 py-5 bg-white bg-opacity-70 backdrop-blur-sm rounded-xl text-center text-lg font-semibold text-green-600 shadow-md hover:scale-105 transform transition duration-200 ease-in-out border border-green-300/50" // Đổi màu báo hiệu link Spotify nhưng không nhúng được
+                      className={`block w-full px-8 py-5 bg-white bg-opacity-90 backdrop-blur-md text-center text-xl font-semibold text-gray-900 shadow-lg hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40 ${currentButtonStyle}`} // Thêm class động vào cuối
                     >
                       {link.title} (Link Spotify - Không nhúng được)
                     </a>
@@ -234,7 +237,8 @@ function PublicProfilePage() {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full px-8 py-5 bg-white bg-opacity-90 backdrop-blur-md rounded-xl text-center text-xl font-semibold text-gray-900 shadow-lg hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40">
+                    className={`block w-full px-8 py-5 bg-white bg-opacity-90 backdrop-blur-md text-center text-xl font-semibold text-gray-900 shadow-lg hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40 ${currentButtonStyle}`} // Thêm class động vào cuối
+                  >
                     {link.title}
                   </a>
                 );
