@@ -26,6 +26,7 @@ function PublicProfilePage() {
         const response = await api.get(
           `/api/profiles/${username.toLowerCase()}`
         );
+        console.log(response);
         setProfileData(response.data);
       } catch (err) {
         console.error(
@@ -111,15 +112,14 @@ function PublicProfilePage() {
       style={{ backgroundColor: themeColor }}
       className="min-h-screen py-12 md:py-16 px-4 transition-colors duration-300 ease-in-out">
       <div className="max-w-md mx-auto flex flex-col items-center">
-        {" "}
         {/* Giảm max-width cho vừa màn hình điện thoại */}
         {/* Avatar */}
         <div className="mb-4">
           {" "}
           {/* Bọc trong div để dễ kiểm soát margin hơn */}
-          {user.image ? (
+          {user.avatarUrl ? (
             <img
-              src={user.image}
+              src={user.avatarUrl}
               alt={`${displayName}'s avatar`}
               // Bo tròn hoàn hảo, kích thước lớn hơn, viền trắng dày hơn, đổ bóng đẹp
               className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-xl border-4 border-white"

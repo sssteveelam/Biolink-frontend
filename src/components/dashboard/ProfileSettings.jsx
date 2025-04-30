@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import api from "../../api/axiosConfig";
 import toast from "react-hot-toast";
-import { Save, Loader2 } from "lucide-react"; // Thêm icon Save và Loader2
+import { Save, Loader2, UploadCloud } from "lucide-react"; // Thêm icon Save và Loader2
 
 export default function ProfileSettings() {
   const { authState } = useContext(AuthContext);
@@ -10,9 +10,13 @@ export default function ProfileSettings() {
   const [themeColor, setThemeColor] = useState("#ffffff");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewSource, setPreviewSource] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // --- Fetch profile data ---
   useEffect(() => {
+    console.log(authState);
     const fetchProfile = async () => {
       setIsLoading(true);
       try {
@@ -78,6 +82,75 @@ export default function ProfileSettings() {
     }
   };
 
+  // Handle File Change
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    console.log(file);
+
+    if (file && file.type.startsWith("image/")) {
+      setSelectedFile(file);
+      // Tạo preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewSource(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setSelectedFile(null);
+      setPreviewSource(null);
+      toast.error("Vui lòng chọn một file ảnh hợp lệ.");
+    }
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!selectedFile) {
+      toast.error("Vui lòng chọn ảnh trước khi tải lên.");
+      return;
+    }
+    setIsUploading(true);
+
+    // Tạo FormData object
+    const formData = new FormData();
+    formData.append("avatar", selectedFile);
+    // 'avatar' phải khớp với tên field trong `upload.single('avatar')` ở backend
+
+    try {
+      // Gọi API backend bằng Axios
+      const response = await api.put("/api/user/avatar", formData, {
+        headers: {
+          // Axios thường tự set Content-Type là multipart/form-data khi bạn gửi FormData
+          // nhưng nếu có vấn đề, bạn có thể thử thêm header này:
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success(response.data.message || "Upload avatar thành công!");
+
+      // --- Cập nhật AuthContext ---
+      // Cách 1: Nếu API trả về đủ thông tin user mới
+      if (response.data.user) {
+        // Giả sử bạn có hàm `updateUser` trong AuthContext
+        // updateUser(response.data.user);
+        // Hoặc gọi lại login nếu cần cập nhật cả token (thường không cần)
+        // login(authState.token, response.data.user);
+
+        // ==> Tạm thời, cách đơn giản nhất là reload lại trang để context tự lấy user mới
+        window.location.reload(); // Hơi xấu nhưng đảm bảo context được cập nhật
+      }
+
+      setSelectedFile(null); // Reset state sau khi upload
+      setPreviewSource(null);
+    } catch (err) {
+      console.error(
+        "Avatar Upload Error:",
+        err.response ? err.response.data : err.message
+      );
+      toast.error(err.response?.data?.message || "Upload avatar thất bại.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // --- Render Loading State ---
   if (isLoading) {
     return (
@@ -99,8 +172,44 @@ export default function ProfileSettings() {
           Cài đặt Profile
         </h3>
         <form onSubmit={handleProfileUpdate} className="space-y-5">
-          {" "}
-          {/* Tăng nhẹ space-y */}
+          {/* Avatar */}
+          <div>
+            <label
+              htmlFor="avatarInput"
+              className="block text-sm font-medium text-gray-600 mb-1">
+              Ảnh đại diện
+            </label>
+            {/* Hiển thị ảnh hiện tại (nếu có) */}
+            {(authState.user?.avatarUrl || previewSource) && ( // Ưu tiên hiển thị preview nếu có
+              <img
+                src={previewSource || authState.user.avatarUrl} // Dùng preview hoặc avatarUrl từ context
+                alt="Avatar preview"
+                className="w-20 h-20 rounded-full object-cover mb-2 border border-gray-300"
+              />
+            )}
+            <input
+              type="file"
+              id="avatarInput"
+              accept="image/*" // Chỉ chấp nhận file ảnh
+              onChange={handleFileChange} // Hàm xử lý khi chọn file
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+            />
+            {/* Nút Upload (chỉ hiện khi đã chọn file) */}
+            {selectedFile && (
+              <button
+                type="button" // Quan trọng: không phải submit form profile
+                onClick={handleAvatarUpload} // Hàm xử lý upload
+                disabled={isUploading}
+                className="mt-2 inline-flex items-center justify-center px-4 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-60">
+                {isUploading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <UploadCloud className="w-4 h-4 mr-2" /> // Thay icon Upload nếu muốn
+                )}
+                {isUploading ? "Đang tải lên..." : "Tải lên ảnh này"}
+              </button>
+            )}
+          </div>
           {/* Bio */}
           <div>
             <label
