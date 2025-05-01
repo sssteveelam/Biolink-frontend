@@ -15,9 +15,10 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import SortableLinkItem from "./SortableLinkItem"; // Giả sử component này đã được style phù hợp
+import SortableLinkItem from "./SortableLinkItem"; // Component con đã được làm đẹp
 import toast from "react-hot-toast";
-import { Plus, Loader2 } from "lucide-react"; // Thêm icon
+// Thêm/bớt icon nếu cần
+import { Plus, Loader2, Inbox } from "lucide-react";
 
 export default function LinkManager() {
   const { authState } = useContext(AuthContext);
@@ -25,18 +26,21 @@ export default function LinkManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [newLinkTitle, setNewLinkTitle] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
+  const [newLinkType, setNewLinkType] = useState("link"); // State cho loại link mới
+  const [newSocialPlatform, setNewSocialPlatform] = useState(""); // State cho MXH mới
   const [isAdding, setIsAdding] = useState(false);
   const [editingLinkId, setEditingLinkId] = useState(null);
   const [editFormData, setEditFormData] = useState({
     title: "",
     url: "",
     linkType: "link",
+    socialPlatform: "",
   });
   const [isSavingEdit, setIsSavingEdit] = useState(false);
-  const [newLinkType, setNewLinkType] = useState("link");
+
   // --- Dnd Kit Setup ---
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }), // Cần di chuột 1 chút mới kích hoạt kéo thả
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
@@ -46,7 +50,10 @@ export default function LinkManager() {
       setIsLoading(true);
       try {
         const response = await api.get("/api/user/links");
-        setLinks(response.data || []);
+        // Sắp xếp links theo order nhận từ API nếu có, hoặc để nguyên
+        const fetchedLinks = response.data || [];
+        // Giả sử API trả về có trường 'order' hoặc đã sắp xếp sẵn
+        setLinks(fetchedLinks);
       } catch (err) {
         console.error(
           "Error fetching links:",
@@ -58,7 +65,7 @@ export default function LinkManager() {
       }
     };
     fetchLinks();
-  }, [authState.token]); // Chỉ fetch lại nếu token thay đổi (thường là khi login/logout)
+  }, [authState.token]); // Chỉ fetch lại khi login/logout
 
   // --- Handlers ---
   const handleDragEnd = (event) => {
@@ -69,7 +76,10 @@ export default function LinkManager() {
           (item) => item._id === active.id
         );
         const newIndex = currentLinks.findIndex((item) => item._id === over.id);
+        if (oldIndex === -1 || newIndex === -1) return currentLinks; // Safety check
+
         const newOrderedLinks = arrayMove(currentLinks, oldIndex, newIndex);
+        // Cập nhật lại trường 'order' (hoặc chỉ gửi ID) cho API
         const orderedLinkIds = newOrderedLinks.map((link) => link._id);
         callReorderApi(orderedLinkIds); // Gọi API nền
         return newOrderedLinks;
@@ -80,29 +90,27 @@ export default function LinkManager() {
   const callReorderApi = async (orderedLinkIds) => {
     try {
       await api.put("/api/user/links/reorder", { orderedLinkIds });
-      toast.success("Đã cập nhật thứ tự link!");
+      // Không cần toast success ở đây để tránh làm phiền, chỉ báo lỗi nếu có
     } catch (err) {
       console.error(
         "Error calling reorder API:",
         err.response ? err.response.data : err.message
       );
-      toast.error("Lỗi khi lưu thứ tự link mới. Vui lòng tải lại trang.");
+      toast.error("Lỗi khi lưu thứ tự link mới. Thứ tự có thể không đúng.");
+      // Cân nhắc fetch lại links để đảm bảo đồng bộ
     }
   };
 
   const handleAddLink = async (e) => {
     e.preventDefault();
     if (!newLinkTitle || !newLinkUrl) {
-      toast.error("Vui lòng nhập cả Tiêu đề và URL.");
+      toast.error("Vui lòng nhập Tiêu đề và URL.", { duration: 2000 });
       return;
     }
-    // Basic URL validation (optional but recommended)
     try {
-      new URL(newLinkUrl); // Check if it's a valid URL structure
+      new URL(newLinkUrl);
     } catch (error) {
-      toast.error(
-        "URL không hợp lệ. Vui lòng kiểm tra lại (vd: https://example.com)"
-      );
+      toast.error("URL không hợp lệ. (vd: https://...)", { duration: 2500 });
       return;
     }
 
@@ -111,13 +119,16 @@ export default function LinkManager() {
       const response = await api.post("/api/user/links", {
         title: newLinkTitle,
         url: newLinkUrl,
-        linkType: newLinkType, // <-- Gửi type đã chọn
+        linkType: newLinkType,
+        socialPlatform: newSocialPlatform || null, // Gửi null nếu rỗng
       });
-      setLinks((prevLinks) => [response.data, ...prevLinks]);
+      // Thêm vào *cuối* danh sách thay vì đầu để giữ thứ tự tự nhiên hơn
+      setLinks((prevLinks) => [...prevLinks, response.data]);
       setNewLinkTitle("");
       setNewLinkUrl("");
+      setNewLinkType("link");
+      setNewSocialPlatform("");
       toast.success("Thêm link thành công!");
-      setNewLinkType("link"); // <-- Reset type về mặc định
     } catch (err) {
       console.error(
         "Error adding link:",
@@ -130,17 +141,27 @@ export default function LinkManager() {
   };
 
   const handleDeleteLink = async (linkId) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa link này?")) return;
+    // Sử dụng modal confirm thay vì window.confirm để đẹp hơn (nếu có thư viện modal)
+    if (!window.confirm("Xác nhận xóa link này?")) return;
+
+    // Optimistic UI: Xóa khỏi state trước khi gọi API
+    const originalLinks = [...links];
+    setLinks((prevLinks) => prevLinks.filter((link) => link._id !== linkId));
+    toast.loading("Đang xóa link...", { id: "delete-toast" }); // Thông báo đang xóa
+
     try {
       await api.delete(`/api/user/links/${linkId}`);
-      setLinks((prevLinks) => prevLinks.filter((link) => link._id !== linkId));
-      toast.success("Xóa link thành công!");
+      toast.success("Xóa link thành công!", { id: "delete-toast" });
     } catch (err) {
       console.error(
         "Error deleting link:",
         err.response ? err.response.data : err.message
       );
-      toast.error(err.response?.data?.message || "Lỗi khi xóa link.");
+      toast.error(err.response?.data?.message || "Lỗi khi xóa link.", {
+        id: "delete-toast",
+      });
+      // Rollback nếu lỗi
+      setLinks(originalLinks);
     }
   };
 
@@ -150,12 +171,14 @@ export default function LinkManager() {
       title: link.title,
       url: link.url,
       linkType: link.linkType || "link",
+      socialPlatform: link.socialPlatform || "",
     });
+    // Scroll tới item đang edit nếu danh sách dài (cần thêm logic)
   };
 
   const handleCancelEdit = () => {
     setEditingLinkId(null);
-    setEditFormData({ title: "", url: "" });
+    // Không cần reset form data ở đây vì nó sẽ được set lại khi bắt đầu edit link khác
   };
 
   const handleEditFormChange = (e) => {
@@ -165,14 +188,13 @@ export default function LinkManager() {
 
   const handleUpdateLink = async () => {
     if (!editFormData.title || !editFormData.url) {
-      toast.error("Vui lòng nhập cả Tiêu đề và URL.");
+      toast.error("Tiêu đề và URL không được để trống.");
       return;
     }
-    // Basic URL validation
     try {
       new URL(editFormData.url);
     } catch (err) {
-      toast.error("URL không hợp lệ. Vui lòng kiểm tra lại.");
+      toast.error("URL không hợp lệ.");
       return;
     }
     setIsSavingEdit(true);
@@ -181,14 +203,14 @@ export default function LinkManager() {
         title: editFormData.title,
         url: editFormData.url,
         linkType: editFormData.linkType,
+        socialPlatform: editFormData.socialPlatform || null,
       });
-      console.log(response);
       setLinks((prevLinks) =>
         prevLinks.map((link) =>
           link._id === editingLinkId ? response.data : link
         )
       );
-      handleCancelEdit();
+      handleCancelEdit(); // Thoát chế độ edit
       toast.success("Cập nhật link thành công!");
     } catch (err) {
       console.error(
@@ -204,136 +226,188 @@ export default function LinkManager() {
   // --- Render Loading State ---
   if (isLoading) {
     return (
-      // Style cho container chính khi loading, giữ nguyên style "glassy"
-      <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg overflow-hidden border border-white/15 p-6 md:p-8 flex justify-center items-center min-h-[200px]">
-        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-        <span className="sr-only">Đang tải danh sách links...</span>
+      // Giữ nguyên style loading, có thể tăng min-h
+      <div className="bg-white/80 backdrop-blur-lg rounded-xl shadow-lg border border-white/20 p-8 flex justify-center items-center min-h-[300px]">
+        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+        <span className="sr-only">Đang tải dữ liệu links...</span>
       </div>
     );
   }
 
   // --- Render Main Content ---
   return (
-    // Container chính của LinkManager - ĐÃ ÁP DỤNG STYLE "GLASSY" VÀ VIỀN MỜ
-    <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg overflow-hidden border border-white/15">
-      {/* Thêm padding bên trong container này */}
+    // Container chính - Giữ style glassy nhưng có thể điều chỉnh độ trong suốt/blur
+    <div className="bg-white/85 backdrop-blur-lg rounded-xl shadow-lg overflow-hidden border border-white/20">
       <div className="p-6 md:p-8">
-        <h3 className="text-xl font-semibold mb-6 text-gray-800">
-          Quản lý Links
-        </h3>
+        {/* Tiêu đề chính - Lớn hơn, rõ ràng hơn */}
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 tracking-tight">
+          Quản lý Liên kết
+        </h2>
 
-        {/* --- Form Thêm Link Mới - Style nhẹ nhàng hơn --- */}
-        <form
-          onSubmit={handleAddLink}
-          // Bỏ nền xám, dùng viền đen mờ, bo góc lớn hơn
-          className="mb-8 p-4 border border-black/10 rounded-lg space-y-4">
-          <h4 className="text-lg font-medium text-gray-700">Thêm Link Mới</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* --- Form Thêm Link Mới --- */}
+        <form onSubmit={handleAddLink} className="mb-8 space-y-4">
+          {/* Có thể thêm tiêu đề nhỏ nếu muốn, hoặc bỏ đi cho gọn */}
+          {/* <h3 className="text-lg font-medium text-gray-700 mb-3">Thêm Link Mới</h3> */}
+
+          {/* Layout Grid cho tất cả các input/select */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+            {/* Input Title */}
             <div>
               <label
                 htmlFor="newLinkTitle"
-                className="block text-sm font-medium text-gray-600 mb-1">
-                Tiêu đề
+                className="block text-sm font-medium text-gray-700 mb-1">
+                Tiêu đề <span className="text-red-500">*</span>
               </label>
               <input
                 id="newLinkTitle"
                 type="text"
-                // Style input nhất quán, focus ring màu tím
-                className="block w-full px-3 py-2 border border-gray-300/70 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
-                placeholder="Ví dụ: Website của tôi"
+                // Style input nhất quán: bo tròn nhẹ, border chuẩn, focus ring mỏng
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
+                placeholder="VD: Trang Facebook cá nhân"
                 value={newLinkTitle}
                 onChange={(e) => setNewLinkTitle(e.target.value)}
                 required
               />
             </div>
+
+            {/* Input URL */}
             <div>
               <label
                 htmlFor="newLinkUrl"
-                className="block text-sm font-medium text-gray-600 mb-1">
-                URL
+                className="block text-sm font-medium text-gray-700 mb-1">
+                URL <span className="text-red-500">*</span>
               </label>
               <input
                 id="newLinkUrl"
                 type="url"
-                className="block w-full px-3 py-2 border border-gray-300/70 rounded-md shadow-sm sm:text-sm focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
                 placeholder="https://example.com"
                 value={newLinkUrl}
                 onChange={(e) => setNewLinkUrl(e.target.value)}
                 required
               />
             </div>
-          </div>
-          {/* type link */}
-          <div>
-            <label
-              htmlFor="newLinkType"
-              className="block text-sm font-medium text-gray-700 mb-1">
-              Loại nội dung
-            </label>
-            <select
-              id="newLinkType"
-              name="linkType"
-              value={newLinkType}
-              onChange={(e) => setNewLinkType(e.target.value)}
-              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-              <option value="link">Link đơn giản</option>
-              <option value="youtube">Nhúng Video YouTube</option>
-              <option value="spotify">Nhúng Spotify</option>
-              {/* Thêm các option khác sau này nếu muốn */}
-            </select>
+
+            {/* Select Loại Nội Dung */}
+            <div>
+              <label
+                htmlFor="newLinkType"
+                className="block text-sm font-medium text-gray-700 mb-1">
+                Nhúng Nội Dung
+              </label>
+              <select
+                id="newLinkType"
+                name="linkType"
+                value={newLinkType}
+                onChange={(e) => setNewLinkType(e.target.value)}
+                // Style select đồng bộ
+                className="block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150">
+                <option value="link">Không nhúng </option>
+                <option value="youtube">Nhúng Video YouTube</option>
+                <option value="spotify">Nhúng Spotify</option>
+                {/* Thêm các loại khác nếu cần */}
+              </select>
+            </div>
+
+            {/* Select Nền Tảng MXH */}
+            <div>
+              <label
+                htmlFor="newSocialPlatform"
+                className="block text-sm font-medium text-gray-700 mb-1">
+                Nền tảng (Nếu là Link MXH)
+              </label>
+              <select
+                id="newSocialPlatform"
+                name="socialPlatform"
+                value={newSocialPlatform}
+                onChange={(e) => setNewSocialPlatform(e.target.value)}
+                // Style select đồng bộ
+                className="block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150">
+                <option value="">-- Tùy chọn --</option>
+                <option value="facebook">Facebook</option>
+                <option value="instagram">Instagram</option>
+                <option value="tiktok">TikTok</option>
+                <option value="twitter">Twitter / X</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="github">GitHub</option>
+                <option value="email">Email (mailto:)</option>
+                <option value="website">Website Cá nhân</option>
+                <option value="other">Khác (Link thường)</option>
+              </select>
+            </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isAdding}
-            // Style nút nhất quán, dùng gradient, chữ trắng
-            className="inline-flex items-center justify-center px-5 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out">
-            {isAdding ? (
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" /> // Icon loading nhỏ hơn
-            ) : (
-              <Plus className="w-5 h-5 mr-1" /> // Icon Plus
-            )}
-            {isAdding ? "Đang thêm..." : "Thêm Link"}
-          </button>
+          {/* Nút Thêm Link - Style Primary đơn giản, đồng bộ hơn */}
+          <div className="pt-2">
+            {" "}
+            {/* Thêm khoảng cách trên nút */}
+            <button
+              type="submit"
+              disabled={isAdding}
+              // Style nút primary: nền indigo, chữ trắng, bo tròn, shadow nhẹ
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out">
+              {isAdding ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : (
+                <Plus className="w-5 h-5 mr-1 -ml-1" /> // Đẩy icon sang trái chút
+              )}
+              {isAdding ? "Đang thêm..." : "Thêm Link Mới"}
+            </button>
+          </div>
         </form>
 
+        {/* --- Đường kẻ phân cách --- */}
+        <hr className="my-8 border-gray-200" />
+
         {/* --- Danh Sách Links Hiện Có --- */}
-        <h4 className="text-lg font-medium text-gray-700 mb-4">
-          Danh sách Links
-        </h4>
-        {links.length === 0 ? (
-          <p className="text-center text-gray-500 py-4">
-            Chưa có link nào. Hãy thêm link đầu tiên của bạn!
-          </p>
-        ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}>
-            <SortableContext
-              items={links.map((link) => link._id)}
-              strategy={verticalListSortingStrategy}>
-              {/* Container cho danh sách, có thể thêm border nhẹ nếu muốn */}
-              <ul className="space-y-3">
-                {links.map((link) => (
-                  <SortableLinkItem
-                    key={link._id}
-                    id={link._id}
-                    link={link}
-                    isEditing={editingLinkId === link._id}
-                    editFormData={editFormData}
-                    handleEditFormChange={handleEditFormChange}
-                    handleUpdateLink={handleUpdateLink}
-                    handleCancelEdit={handleCancelEdit}
-                    handleStartEdit={handleStartEdit}
-                    handleDeleteLink={handleDeleteLink}
-                    isSavingEdit={isSavingEdit}
-                  />
-                ))}
-              </ul>
-            </SortableContext>
-          </DndContext>
-        )}
+        <div>
+          <h3 className="text-xl font-semibold mb-4 text-gray-800">
+            Danh sách Liên kết ({links.length})
+          </h3>
+          {links.length === 0 ? (
+            // Trạng thái rỗng - Trông thân thiện hơn
+            <div className="text-center py-12 px-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50/50">
+              <Inbox
+                className="mx-auto h-12 w-12 text-gray-400"
+                strokeWidth={1.5}
+              />
+              <h4 className="mt-2 text-base font-semibold text-gray-800">
+                Chưa có liên kết nào
+              </h4>
+              <p className="mt-1 text-sm text-gray-500">
+                Hãy bắt đầu bằng cách thêm liên kết mới của bạn ở trên.
+              </p>
+            </div>
+          ) : (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}>
+              <SortableContext
+                items={links.map((link) => link._id)}
+                strategy={verticalListSortingStrategy}>
+                {/* Container danh sách - Khoảng cách giữa các item */}
+                <ul className="space-y-3">
+                  {links.map((link) => (
+                    <SortableLinkItem
+                      key={link._id}
+                      id={link._id}
+                      link={link}
+                      isEditing={editingLinkId === link._id}
+                      editFormData={editFormData}
+                      handleEditFormChange={handleEditFormChange}
+                      handleUpdateLink={handleUpdateLink}
+                      handleCancelEdit={handleCancelEdit}
+                      handleStartEdit={handleStartEdit}
+                      handleDeleteLink={handleDeleteLink}
+                      isSavingEdit={isSavingEdit && editingLinkId === link._id} // Chỉ hiện saving cho item đang sửa
+                    />
+                  ))}
+                </ul>
+              </SortableContext>
+            </DndContext>
+          )}
+        </div>
       </div>{" "}
       {/* Kết thúc padding container */}
     </div> // Kết thúc container chính LinkManager
