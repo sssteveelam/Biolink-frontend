@@ -118,6 +118,15 @@ export default function LoginPage() {
               </button>
             </div>
           </div>
+          <div className="text-right text-sm mb-6">
+            {" "}
+            {/* Hoặc mb-4 */}
+            <Link
+              to="/forgot-password" // Link đến trang quên mật khẩu
+              className="font-medium text-indigo-200 hover:text-white transition duration-150 ease-in-out">
+              Quên mật khẩu?
+            </Link>
+          </div>
           {/* Nút Submit */}
           <div>
             <button

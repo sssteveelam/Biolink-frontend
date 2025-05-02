@@ -139,6 +139,23 @@ function PublicProfilePage() {
   );
   const websiteLink = links.find((link) => link.socialPlatform === "website"); // Tìm link website riêng nếu có
 
+  /// Handle event click to process clickCount
+  const handleLinkClick = async (linkId, linkUrl) => {
+    if (!linkId || !linkUrl) return;
+
+    // Gọi API để ghi nhận lượt click (không cần đợi kết quả - fire and forget)
+    // Mình đặt trong try...catch để nó không làm dừng việc điều hướng nếu API lỗi.
+    // api/user/links
+    try {
+      api.post(`/api/user/links/${linkId}/click`); // Không cần await
+    } catch (error) {
+      console.error("Failed to track link click:", error); // Log lỗi nhưng không làm gì thêm
+    }
+
+    // Điều hướng người dùng đến link đích trong tab mới
+    window.open(linkUrl, "_blank", "noopener,noreferrer");
+  };
+
   return (
     // Container chính với màu nền động và padding
     <div
@@ -191,6 +208,10 @@ function PublicProfilePage() {
                   key={link._id}
                   href={link.url}
                   title={link.title || link.socialPlatform} // Thêm title cho tooltip
+                  onClick={(e) => {
+                    e.preventDefault(); // Ngăn trình duyệt điều hướng ngay lập tức
+                    handleLinkClick(link._id, link.url);
+                  }}
                   target="_blank"
                   rel="noopener noreferrer"
                   // Style cho icon (màu, kích thước, hover)
@@ -209,19 +230,24 @@ function PublicProfilePage() {
           )}
 
           {/* Khu vực hiển thị Link Website (nếu tách riêng) */}
-          {websiteLink && (
-            <a
-              key={websiteLink._id}
-              href={websiteLink.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center justify-center w-full px-6 py-3 mb-4 bg-white bg-opacity-90 backdrop-blur-md text-center text-lg font-semibold text-gray-800 shadow-md hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40 ${
-                profile?.buttonStyle || "rounded-lg"
-              }`}>
-              <Globe size={20} className="mr-2" /> {/* Icon website */}
-              {websiteLink.title || "Website"}
-            </a>
-          )}
+          {websiteLink &&
+            websiteLink.map((link) => (
+              <a
+                key={link._id}
+                href={link.url}
+                onClick={(e) => {
+                  e.preventDefault(); // Ngăn trình duyệt điều hướng ngay lập tức
+                  handleLinkClick(link._id, link.url);
+                }}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex items-center justify-center w-full px-6 py-3 mb-4 bg-white bg-opacity-90 backdrop-blur-md text-center text-lg font-semibold text-gray-800 shadow-md hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40 ${
+                  profile?.buttonStyle || "rounded-lg"
+                }`}>
+                <Globe size={20} className="mr-2" /> {/* Icon website */}
+                {websiteLink.title || "Website"}
+              </a>
+            ))}
 
           {/* Khu vực hiển thị Links thường (như cũ) */}
           <div className="w-full max-w-lg flex flex-col items-center space-y-4">
@@ -259,6 +285,10 @@ function PublicProfilePage() {
                         <a
                           key={link._id}
                           href={link.url}
+                          onClick={(e) => {
+                            e.preventDefault(); // Ngăn trình duyệt điều hướng ngay lập tức
+                            handleLinkClick(link._id, link.url);
+                          }}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={`block w-full px-8 py-5 bg-white bg-opacity-90 backdrop-blur-md text-center text-xl font-semibold text-gray-900 shadow-lg hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40 ${currentButtonStyle}`} // Thêm class động vào cuối
@@ -297,6 +327,10 @@ function PublicProfilePage() {
                           key={link._id}
                           href={link.url} // Vẫn dùng URL đã lưu, có thể nó là link share
                           target="_blank"
+                          onClick={(e) => {
+                            e.preventDefault(); // Ngăn trình duyệt điều hướng ngay lập tức
+                            handleLinkClick(link._id, link.url);
+                          }}
                           rel="noopener noreferrer"
                           className={`block w-full px-8 py-5 bg-white bg-opacity-90 backdrop-blur-md text-center text-xl font-semibold text-gray-900 shadow-lg hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40 ${currentButtonStyle}`} // Thêm class động vào cuối
                         >
@@ -309,6 +343,10 @@ function PublicProfilePage() {
                       <a
                         key={link._id}
                         href={link.url}
+                        onClick={(e) => {
+                          e.preventDefault(); // Ngăn trình duyệt điều hướng ngay lập tức
+                          handleLinkClick(link._id, link.url);
+                        }}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`block w-full px-8 py-5 bg-white bg-opacity-90 backdrop-blur-md text-center text-xl font-semibold text-gray-900 shadow-lg hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40 ${currentButtonStyle}`} // Thêm class động vào cuối

@@ -31,7 +31,7 @@ api.interceptors.request.use(
       "/api/auth/register",
       "/api/profiles/",
     ]; // Thêm /api/profiles/ để trang public không cần token
-    
+
     const isPublicRoute = publicRoutes.some((route) =>
       config.url.startsWith(route)
     );
