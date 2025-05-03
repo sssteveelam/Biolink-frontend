@@ -60,7 +60,6 @@ function PublicProfilePage() {
 
   // Lấy kiểu nút từ profile, nếu không có thì dùng kiểu default
   const currentButtonStyle = profileData?.profile.buttonStyle || "rounded-lg";
-  console.log(profileData);
 
   // --- Render Loading ---
   if (isLoading) {
@@ -111,17 +110,81 @@ function PublicProfilePage() {
   }
 
   const { user, profile, links } = profileData;
-  // Đảm bảo themeColor hợp lệ, nếu không dùng màu xám nhạt làm fallback
+  const themeStyles = {
+    "custom-color-#e0e0e0": "#e0e0e0",
+    "gradient-sunset": "linear-gradient(to right, #ff7e5f, #feb47b)",
+    "gradient-ocean": "linear-gradient(to right, #00c6ff, #0072ff)",
+    "image-forest":
+      "url(https://media-hosting.imagekit.io/6b6f6d55318a4eb7/rung_c7171.webp?Expires=1840862218&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=hq27LNVF3LS6EPUtMKHE9DRnl8IBJPONibqlf1JShTqUjY2Iyu7Ms4Zg2CoQNAELkxlgOKNRKC3MR79a4YP6xs8a1dSrVn~rxaUb3sAqAvajRJIoDgvvVrcK~eHx5eWP7AQ2g6tHxsz73vJJh9qWt97TgMeRGSLWeAlPkGMw5Xiq4jssllBl~pXfHI~29N~iNK2Zy22Y22kplNBA3PI7k4wIIEBxWIKbPbTdO1F0Qd1bzEc8cbeSO6tc-sdkvuvGQtwcF1Ii1ayRQqeXtvwOlxHYave9iFZZVZ9bc1lHc1UXXQsU-SWT3ptLQeGkYZ2g9GE9OWe4IPF6U-c9JF9LsA__)",
+    "image-mountain":
+      "url(https://media-hosting.imagekit.io/e4685b3268a147b0/3900141628014723270.webp?Expires=1840862277&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=ep4X6Coij27mZoUxciRW6fo05aN4qkpAoTE1tJY8KWse7nfeDD3P38yE74lFVZWbTA264gao2ts02KKh604FxPf4B5TDghAfJ4ULLUnxGEVX6HOHUOLuv4bbuHYxE8LMdwbF5k5hbO5PKHVYFkwHyDrCzRfOv3wEEfAD8ThbX864xPKTspteD7NMUuDNbBndvsnJxOUbB83ijM53RfC8upmEqMos281kB9CQ8aAXfMV2hvUnD7W8SCf6RqA7K7l5x4XfgzFp6umhDh6ntm0jYARcRVa1imdyoSAzJiVmYDZlNDgrQv93rQYK5Ct254PYSz9xBKXj~sd1d-iJX9VuOw__)",
+    "image-hagiang":
+      "url(https://media-hosting.imagekit.io/fd8f82dd192941cd/1_nui_doi_tuyet_tac_thien_nhien_hung_vi_giua_cao_nguyen_da_dong_van_367c4971b5.jpg?Expires=1840869727&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=1N9tCMFdAfwk1TGlO0eRLb96fN2Ci-Sp7qPjXLfQ9XAW~-qWC3FIVcJZJXI2TRnClQTnWfsgpofEM17y5e0LvxCH86dcQmHhPEmVBO-oFdDUYrL5LXWhBCgqjMX2L8O4yl2xuyU2MavaPnIkl-E8sE0Lhegw0ABaigPPe0eQDIlAlI8MW~Q-QjsrvBK6CjOPmjk6tkQ1bGAC7l06j-TeA429F4q292IcQjw39NYlva9sofxxWP5elsmyHTOh2mLNdNcgECY82xYGvyor3Ev0JhXwVtc8qJRTA45dqgFylkr6oYUEdrE1P6-3shI~mPxjOpmwfH3ktb7x1PYQo3s2iw__)",
+    "image-Home":
+      "url(https://media-hosting.imagekit.io/bf8a6ed53cdd434c/Yellow%20and%20Pink%20Colorful%20Boy%20Sleeping%20In%20The%20Room%20anime%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=hQ6d5PNzXCYdrWss220VB42JT1jXyFaPOqkSoKV7sxvpQTquKskqMpsMpv5~vvQYAZIzMDzeQssduHEAQ69r-KcemvbtdflUt00YThesvj4fAovaslcrrWeU7tp0ry8TfKV4d-gzfLY8FeqFpm42JtVQCbL-GgrTHQOgKgqlayQaPUMU0ci2JeJzOLE-3YlSqbo2B9lnz7aGCeWqNTmRb3J7GD9MuD6JSMmRG5RHZnZlWDfhx9010oGaK6DrVvsal7NLrCv0MOWUE7ERZjMQ4B5lhUWJ~~k65QiYrzNwgYacsdKCCO-i5t4wF5uJgy6ene-W4Y0F3uMitEOyzCcKsA__)",
+    "image-cat":
+      "url(https://media-hosting.imagekit.io/f5e9bf77cdc548be/Green%20Orange%20Illustrated%20Cat%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=GAIvnUQYvkbL5fPZR1MT1LcJGB-lHYxjX332hfgUUafncOy8SiRG-VAV~7AiBeevXMSFBVbvT5BBmoucBlQ15i67HzNPWbU6XJRswFOrrD5oKcRXBSBJayb5YmwFdKvj-j~hI-ga-zwi9IVJEZRttB7nsn7BU3EdEf~9HHmjxq277yxJOl63KaV~xN9HmZQ53Z0IHJg0lur7j7gZ18bIacl9iaNeAG1yTEO0zjkT-2~g3qQgyWgHJAkcwXxUGFQf47Pwlmg6r61xlOJDLF8rny~McBqycfzURsjKXIpI-oapLcN2BP3o-5NeT82vBz4NHNnTkcVJIb6Mcy~TMC3JTA__)",
+    "image-driver":
+      "url(https://media-hosting.imagekit.io/56df0180de9e48c9/Blue%20and%20White%20Simple%20Nature%20Flower%20Water%20Quotes%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=Fa7U~yo~ITbO7vybD9MJSM5QVkXZZO04uYGRQLjufSkY8k13fkKrI-aAYpaX0hzzezsq5QKx85Mc1TlzY9S5fchQIvmF~~OrsYO-1g4WVizf5XytC1myJZbXbT0XSXFAcHOl6pW06XFVwWLV8grhILB~eJkM4ZQ25sxwj6IiBOUz25a3DSPgc8oNf65p01oUVTvxdUBN5EumkCpUfGz8783-4KJgvFpAD0b6UHu0PptT3y6exqzGlMr7r8DO9CMl5~ubbP~qnyl2DbfEhhvQEafLxm55iWXpT4z06twwuIydwYlJyo~1xRtCFt6MVuVuYBVGzwWE2l1CwThBCDQU~Q__)",
+    "image-sky":
+      "url(https://media-hosting.imagekit.io/85762aca4db54c93/Blue%20and%20Green%20Illustrated%20Nature%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=yxIRfdGZL9Xmzp~fxC-ZkpgzGrYPPL0n7VsrSioQFA2U2t5SGwrTX4bHAKJ7NDA-m18Mqmet9or6DisAEAJq8mwPAwbuRnZcVR5r8-GWyEtOx~EWDNPVsKKn5T2D9ld1bWtEZliJGqmk78Qk7xNpJ3qGa2t-qgcFeSxmrCh6gSo9Dg-EvI7KiDhBbz~qht3pJzQppfOm6TKOM-i5XnJSh4V5zCJDtvLChieT1~yu5eRn~ymoMP-FYP6A4-m~r2ehbBjuV95E2fYJjYb6fm2sj3yRIECvxWGBzu9-sh5ORqrlRQwnxl~TKakH5Nr897FCTXjJR9YubviB~KCYxAtK~Q__)",
+    "image-strawberry":
+      "url(https://media-hosting.imagekit.io/613bb3c130e84155/strawberry.png?Expires=1840861666&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=2cMe-LS~6NzgFh-Pa62ZWgqrZalHgzpLAdIBu~ohgMYoGcEmt5k4oAh6Uwcw8rh8558yDC1Q9bhB8SEdMUnZykieJ5yu2IDCA9US~ERmFdDMrSq938QfvcvOybbr2tgk4Z9B5z1oPRMr8O~fWM2sR~pEnneQAEhiCDTyMolChyeI2dVCAivYHBOE7NgRI5f-o~63NEx9rfqS3TxT-FZVWrPRJajJpp-nIc9k8Lu2yJjfmcKXNJn-BNsJP3dspbZyHKEgVStv1PC0DzNZPi4SUWGJhTbsKA~8e1N-HiLBdJkbtqr8EK9v3KlRTM15LyFnso8uYWbcu0UAlnCCbKb0Xw__)",
+    "image-glassmorphism":
+      "url(https://media-hosting.imagekit.io/930e08babf864061/glassmorphism.jpg?Expires=1840861666&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=as1TZwpJp4Sn82w8D5vR-5a-wAQkq6UVVIUa~SOMM16V5eFnR5-lQVPCiTA87i7veKT1ZpNRCG2v2o-DMnbc12L2UTfos9TfWRkaSJvI6TGTGIGgY-fP0LVZDWXID5YnI0Xy~FbC-bPXcybycMNW-WDsjzTtHXHCmqH3aUX2v6bvFyAlen~9ubZ-pOkLDXNrEeIBV-5YaHp9VTtwNnhIfGuLJ0G0DwpgQgSCd-tfAtqDNyRFDiTZvVuNppYgGMavR3XMSw550wyIEiLmJLZTzOP6--~3JeXZan7gSZb3P1E1Nj0kwh0t7vQOpb5mll2ISWMATTwOkYo8YQc~E2O0BQ__)",
+    "image-neon":
+      "url(https://media-hosting.imagekit.io/4018b30587f04a41/neon.jpg?Expires=1840861666&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=ZOf6HQsDsjUX~AvD~KOXNM2DoatVfWFes0F0hTQCBeRgomtSJzy0Vrk~ErG79Pkn5tBURgAn44z6YDT6Q3Gxx6C71Kql1HO5Sw3mYpghjIVxhF91L0AKnA6f0WrfMh6zvUI88tQEfbmJRfEN5yyDNdnv~Ep1Hq0cYN70zKMYCf5dcCNtkucY6LYM26dZNgXQZFOUJWSxvxwTB367qNkwuQct060~kfGuuTHrIsUprRZL8xVIQoFNagJphnCx1lgZZ2XoTJ56d3f7ZWcJR~BM3MtiVWHvZgjovmiPs0~n5JkLenXVBgHBPGC0BlYxhWBqzG~lPzxHbOi23zVbxHZLlQ__)",
+    "image-maybay":
+      "url(https://media-hosting.imagekit.io/205f895b8a9a4cc0/A50%20-%20NKVK%2036.jpeg?Expires=1840871485&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=xk8eAahnvkFp9Fsz7rToTI8qP4DEQXS8c41cn1yVDiyUhnn4iBa1msx8w2sVyBODmtJaWd~7jmGKZRmImZ1x1CkYd0YM4Km0eQX3ZU10naov6dlAKYIvQut7bGk1F4AA0GJ1MPBkICLPIHWeBbmYoV-2LtL94-So3s~AY7LPhpqp4lVgVDYnDMlrcfNwgEYheQEk0I3x3kWuUAmGi44oGztOwa3OAB6gMXrDz40LWU~PtYAviCLqSvXRKOge2ajgCYK8tKn2syTcqba2cfOl4MSH2HDv76-dxeP-347tK3xjcdLvWqGNzJJAU1nnCQrKbwtOT89MAFUoLH5hUp-6iA__)",
+  };
+
+  // ==========================
+
+  // === XÁC ĐỊNH STYLE NỀN ===
+  let backgroundStyle = {};
+  const selectedThemeId = profile?.selectedThemeId;
   const themeColor =
     profile?.themeColor && /^#[0-9A-F]{6}$/i.test(profile.themeColor)
       ? profile.themeColor
-      : "#F3F4F6"; // Màu xám nhạt Tailwind (bg-gray-100)
+      : "#ffffff"; // Màu trắng làm fallback nếu màu hex không hợp lệ
+
+  if (selectedThemeId && themeStyles[selectedThemeId]) {
+    const themeValue = themeStyles[selectedThemeId];
+    if (themeValue.startsWith("url(")) {
+      // Là theme ảnh
+      backgroundStyle = {
+        backgroundImage: themeValue,
+        backgroundSize: "cover", // Luôn cover
+        backgroundPosition: "center", // Luôn căn giữa
+        backgroundAttachment: "fixed", // (Tùy chọn) Làm nền đứng yên khi cuộn
+        backgroundColor: "#f3f4f6", // Màu nền fallback loading ảnh
+      };
+    } else {
+      // Là theme gradient
+      backgroundStyle = {
+        backgroundImage: themeValue,
+        backgroundColor: themeColor, // Có thể dùng màu chính của theme làm fallback
+      };
+    }
+  } else {
+    // Dùng màu tùy chọn (themeColor)
+    backgroundStyle = {
+      backgroundColor: themeColor,
+    };
+  }
+  // ==========================
+
+  // --- Tính màu chữ tương phản (giữ nguyên) ---
+  const contrastColor = getContrastColor(
+    backgroundStyle.backgroundColor || themeColor
+  ); // Dùng màu nền hoặc themeColor
+  const subtleContrastColor = getContrastColor(
+    backgroundStyle.backgroundColor || themeColor,
+    0.8
+  );
+
   const bio = profile?.bio || "";
   const displayName = user.name || `@${user.username}`;
-
-  // Tính màu chữ tương phản (nên dùng helper function)
-  const contrastColor = getContrastColor(themeColor);
-  const subtleContrastColor = getContrastColor(themeColor, 0.8); // Màu chữ phụ, mờ hơn
 
   // lọc links
   const socialLinks = links.filter(
@@ -159,7 +222,7 @@ function PublicProfilePage() {
   return (
     // Container chính với màu nền động và padding
     <div
-      style={{ backgroundColor: themeColor }}
+      style={backgroundStyle}
       className="min-h-screen py-12 md:py-16 px-4 transition-colors duration-300 ease-in-out">
       <div className="max-w-md mx-auto flex flex-col items-center">
         {/* Giảm max-width cho vừa màn hình điện thoại */}
