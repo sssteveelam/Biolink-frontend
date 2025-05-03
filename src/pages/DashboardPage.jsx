@@ -5,6 +5,7 @@ import ProfileSettings from "../components/dashboard/ProfileSettings";
 import LinkManager from "../components/dashboard/LinkManager";
 import toast from "react-hot-toast";
 import { LogOut } from "lucide-react"; // Nhớ cài đặt: npm install lucide-react
+import ShareProfileCard from "../components/ShareProfileCard"; // <-- Import component mới
 
 function DashboardPage() {
   const { authState, logout } = useContext(AuthContext);
@@ -54,6 +55,11 @@ function DashboardPage() {
           renderLoadingSkeleton()
         ) : (
           <main className="space-y-6 md:space-y-8">
+            {/* ==>> THÊM COMPONENT SHARE VÀO ĐÂY <<== */}
+            <section aria-labelledby="share-profile-heading">
+              <ShareProfileCard />
+            </section>
+
             {/* Card Profile Settings - VIỀN ĐÃ ĐƯỢC LÀM MỜ HƠN */}
             <section
               aria-labelledby="profile-settings-heading"

@@ -17,7 +17,6 @@ export default function ProfileSettings() {
 
   // --- Fetch profile data ---
   useEffect(() => {
-    console.log(authState);
     const fetchProfile = async () => {
       setIsLoading(true);
       try {
@@ -240,6 +239,8 @@ export default function ProfileSettings() {
             </p>{" "}
             {/* Căn phải cho đẹp */}
           </div>
+          {/* username */}
+
           {/* Theme Color */}
           <div>
             <label

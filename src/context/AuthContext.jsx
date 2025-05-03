@@ -8,9 +8,9 @@ export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
     token: null,
-    user: null, // Sẽ lưu thông tin user ở đây
+    user: null,
     isAuthenticated: false,
-    isLoading: true, // Ban đầu sẽ kiểm tra trạng thái đăng nhập
+    isLoading: true,
   });
 
   const verifyTokenOnLoad = async () => {
