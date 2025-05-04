@@ -30,7 +30,6 @@ function ShareProfileCard() {
   }, [authState.user]);
 
   const copyToClipboard = (textToCopy) => {
-    // ... (copyToClipboard giữ nguyên) ...
     if (!textToCopy) return;
     navigator.clipboard
       .writeText(textToCopy)

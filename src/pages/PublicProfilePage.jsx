@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../api/axiosConfig";
 import {
@@ -15,14 +15,22 @@ import {
   Link as LinkIcon,
   Youtube,
   Music,
+  Share,
+  Download,
+  Clipboard,
 } from "lucide-react"; // Import icons
 import getYoutubeVideoId from "../utils/youtubeUtils";
+import toast from "react-hot-toast";
+import { QRCodeSVG } from "qrcode.react";
 
 function PublicProfilePage() {
   const { username } = useParams();
   const [profileData, setProfileData] = useState(null);
   const [isLoading, setIsLoading] = useState(true); // Bắt đầu với true để fetch ngay
   const [error, setError] = useState(null);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isShareSectionVisible, setIsShareSectionVisible] = useState(false);
+  const qrCodeRef = useRef(null);
 
   useEffect(() => {
     document.title = username.toUpperCase();
@@ -219,13 +227,65 @@ function PublicProfilePage() {
     window.open(linkUrl, "_blank", "noopener,noreferrer");
   };
 
+  // ----------------------------------
+  const publicProfileUrl = profileData
+    ? `${window.location.origin}/${profileData.user.username}`
+    : ""; // Tạo URL ở đây
+
+  const copyToClipboard = () => {
+    if (!publicProfileUrl) return;
+    navigator.clipboard
+      .writeText(publicProfileUrl)
+      .then(() => {
+        setIsCopied(true);
+        toast.success("Đã sao chép link!");
+        setTimeout(() => setIsCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Lỗi sao chép:", err);
+        toast.error("Sao chép thất bại!");
+      });
+  };
+
+  const downloadQRCode = () => {
+    const svgElement = qrCodeRef.current?.querySelector("svg");
+    const qrUsername = profileData?.user?.username || "profile"; // Lấy username để đặt tên file
+    if (svgElement) {
+      try {
+        // ... (logic download SVG giữ nguyên) ...
+        const serializer = new XMLSerializer();
+        let svgString = serializer.serializeToString(svgElement);
+        if (!svgString.startsWith("<?xml")) {
+          svgString = /*...*/ +svgString;
+        }
+        const blob = new Blob([svgString], {
+          type: "image/svg+xml;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const downloadLink = document.createElement("a");
+        downloadLink.href = url;
+        downloadLink.download = `${qrUsername}-biolink-qr.svg`; // Dùng username lấy được
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(url);
+        toast.success("Đang tải mã QR (SVG)...");
+      } catch (error) {
+        console.error("Lỗi tải QR:", error);
+        toast.error("Không thể tải mã QR.");
+      }
+    } else {
+      console.error("Không tìm thấy SVG QR.");
+      toast.error("Không thể tải mã QR.");
+    }
+  };
+  // =======================================================
+
   return (
-    // Container chính với màu nền động và padding
     <div
       style={backgroundStyle}
       className="min-h-screen py-12 md:py-16 px-4 transition-colors duration-300 ease-in-out">
       <div className="max-w-md mx-auto flex flex-col items-center">
-        {/* Giảm max-width cho vừa màn hình điện thoại */}
         {/* Avatar */}
         <div className="mb-4">
           {" "}
@@ -253,14 +313,101 @@ function PublicProfilePage() {
           style={{ color: finalTextColor }}>
           {displayName}
         </h1>
+
         {/* Bio */}
         {bio && (
           <p
-            className="text-base md:text-lg text-center mb-8 max-w-lg px-2" // Giảm mb, thêm padding ngang
+            className="text-base md:text-lg text-center mb-4 max-w-lg px-2" // Giảm mb, thêm padding ngang
             style={{ color: finalTextColor }}>
             {bio}
           </p>
         )}
+
+        {/* === Nút Share === */}
+        <button
+          onClick={() => setIsShareSectionVisible(!isShareSectionVisible)}
+          className="absolute top-3 right-3 mt-2 mr-2 p-2 rounded-full transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent"
+          // Style nút share dựa trên màu nền/chữ
+          style={{
+            backgroundColor:
+              backgroundStyle === "#ffffff"
+                ? "rgba(0, 0, 0, 0.05)"
+                : "rgba(255, 255, 255, 0.27)", // Nền mờ
+            color: finalTextColor, // Màu icon theo màu chữ chính
+            // ringColor: finalTextColor // Màu viền focus
+          }}
+          aria-expanded={isShareSectionVisible}
+          aria-label={
+            isShareSectionVisible ? "Đóng chia sẻ" : "Chia sẻ profile"
+          }
+          title={isShareSectionVisible ? "Đóng chia sẻ" : "Chia sẻ profile"}>
+          <Share size={20} />
+        </button>
+        {/* ================ */}
+
+        {/* === Section Chia sẻ xổ xuống === */}
+        <div
+          className={`w-full transition-all duration-500 ease-in-out overflow-hidden rounded-lg
+                        ${
+                          isShareSectionVisible
+                            ? "max-h-[500px] opacity-100 mt-6 mb-6"
+                            : "max-h-0 opacity-0"
+                        }`} // Thêm margin top/bottom khi hiện
+        >
+          {/* Thêm một lớp nền nhẹ cho section này */}
+          <div
+            className="p-4 space-y-4 rounded-lg border"
+            style={{
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              borderColor: "rgba(255, 255, 255, 0.2)",
+              backdropFilter: "blur(2px)",
+            }}>
+            <h4
+              className="text-center font-semibold text-sm"
+              style={{ color: finalTextColor }}>
+              Chia sẻ Profile
+            </h4>
+            {/* QR Code */}
+            <div
+              className="flex flex-col items-center p-3 bg-white/90 rounded-lg border border-gray-200"
+              ref={qrCodeRef}>
+              <QRCodeSVG value={publicProfileUrl} size={150} level={"H"} />
+              <span className="text-xs text-gray-700 mt-2">
+                Quét mã để mở trang
+              </span>
+            </div>
+            {/* Link và nút Copy */}
+            <div className="flex items-center space-x-2 bg-white/80 p-2 rounded-md border border-gray-200">
+              <LinkIcon className="w-4 h-4 text-indigo-600 flex-shrink-0 ml-1" />
+              {/* Input hiển thị link */}
+              <input
+                type="text"
+                readOnly
+                value={publicProfileUrl}
+                className="flex-grow text-xs p-1 bg-transparent outline-none text-indigo-800 font-medium" // Cho chữ đậm hơn
+                onClick={(e) => e.target.select()} // Chọn text khi click input
+              />
+              {/* Nút copy nhỏ hơn */}
+              <button
+                onClick={copyToClipboard}
+                className="p-1.5 text-gray-500 hover:text-indigo-700 hover:bg-indigo-100 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 transition flex-shrink-0"
+                aria-label="Sao chép link">
+                {isCopied ? (
+                  <Check className="w-4 h-4 text-green-600" />
+                ) : (
+                  <Clipboard className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+            {/* Download Button */}
+            <button
+              onClick={downloadQRCode}
+              className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600/90 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
+              <Download className="w-4 h-4 mr-2" /> Tải mã QR
+            </button>
+          </div>
+        </div>
+        {/* ============================= */}
         {/* Danh sách Links */}
         <div className="w-full max-w-lg flex flex-col items-center space-y-5">
           {/* Khu vực hiển thị Icon Mạng xã hội */}
