@@ -16,6 +16,8 @@ export default function LoginPage() {
 
   // Tự động focus vào ô email khi component mount
   useEffect(() => {
+    document.title = "Login";
+
     emailInputRef.current?.focus();
   }, []);
 

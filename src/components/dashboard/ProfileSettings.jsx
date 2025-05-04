@@ -9,6 +9,7 @@ export default function ProfileSettings() {
   const [bio, setBio] = useState("");
   const [themeColor, setThemeColor] = useState("#ffffff");
   const [selectedThemeId, setSelectedThemeId] = useState(null);
+  const [textColor, setTextColor] = useState("");
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -260,11 +261,13 @@ export default function ProfileSettings() {
               ? null
               : response.data.selectedThemeId
           );
+          setTextColor(response.data.textColor || "");
         } else {
           setBio("");
           setThemeColor("#ffffff");
           setButtonStyle("rounded-lg"); // Reset về default nếu không có profile
           setSelectedThemeId(null);
+          setTextColor("");
         }
       } catch (err) {
         if (err.response && err.response.status === 404) {
@@ -296,6 +299,7 @@ export default function ProfileSettings() {
         themeColor,
         buttonStyle,
         selectedThemeId,
+        textColor: textColor || null,
       });
       // Cập nhật lại state để đảm bảo đồng bộ sau khi lưu
       setBio(response.data.bio || "");
@@ -311,6 +315,7 @@ export default function ProfileSettings() {
           ? null
           : response.data.selectedThemeId
       );
+      setTextColor(response.data.textColor || ""); // <<< Cập nhật textColor state
 
       toast.success("Cập nhật profile thành công!");
     } catch (err) {
@@ -484,7 +489,40 @@ export default function ProfileSettings() {
             </p>{" "}
             {/* Căn phải cho đẹp */}
           </div>
-          {/* username */}
+          {/* === THÊM PHẦN CHỌN MÀU CHỮ === */}
+          <div>
+            <label
+              htmlFor="textColorPicker"
+              className="block text-sm font-medium text-gray-600 mb-1">
+              Màu chữ (Tên, Tiểu sử)
+            </label>
+            <div className="flex items-center space-x-3">
+              <input
+                id="textColorPicker"
+                name="textColorPicker"
+                type="color"
+                className="h-10 w-14 p-1 border border-gray-300/70 rounded-md cursor-pointer shadow-sm"
+                value={textColor || "#000000"} // Hiển thị màu đen nếu chưa chọn
+                onChange={(e) => setTextColor(e.target.value)}
+              />
+              <input
+                id="textColorText"
+                name="textColorText"
+                type="text"
+                className="blockPublicProfilePage w-full px-3 py-2 border border-gray-300/70 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out"
+                value={textColor}
+                onChange={(e) => setTextColor(e.target.value)}
+                placeholder="Để trống để dùng màu tự động" // Gợi ý cho người dùng
+                pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+                title="Nhập mã màu dạng #rrggbb hoặc #rgb"
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Để trống trường này nếu bạn muốn màu chữ tự động tương phản với
+              màu nền.
+            </p>
+          </div>
+          {/* ============================ */}
 
           {/* Theme Color */}
           <div>

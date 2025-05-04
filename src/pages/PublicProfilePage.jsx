@@ -25,6 +25,7 @@ function PublicProfilePage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    document.title = username.toUpperCase();
     const fetchPublicProfile = async () => {
       if (!username) {
         setIsLoading(false);
@@ -177,11 +178,10 @@ function PublicProfilePage() {
   // --- Tính màu chữ tương phản (giữ nguyên) ---
   const contrastColor = getContrastColor(
     backgroundStyle.backgroundColor || themeColor
-  ); // Dùng màu nền hoặc themeColor
-  const subtleContrastColor = getContrastColor(
-    backgroundStyle.backgroundColor || themeColor,
-    0.8
   );
+
+  const userTextColor = profile?.textColor; // Lấy màu chữ người dùng chọn
+  const finalTextColor = userTextColor || contrastColor;
 
   const bio = profile?.bio || "";
   const displayName = user.name || `@${user.username}`;
@@ -241,7 +241,7 @@ function PublicProfilePage() {
             // Placeholder avatar
             <div
               className="w-24 h-24 md:w-28 md:h-28 rounded-full shadow-xl bg-white/50 border-4 border-white flex items-center justify-center text-5xl font-bold"
-              style={{ color: contrastColor }}>
+              style={{ color: finalTextColor }}>
               {/* Chữ cái đầu, màu tương phản */}
               {displayName.charAt(0).toUpperCase()}
             </div>
@@ -250,14 +250,14 @@ function PublicProfilePage() {
         {/* Tên */}
         <h1
           className="text-2xl md:text-3xl font-bold mb-2 text-center break-words px-2" // Giảm kích thước chữ, thêm padding ngang nhỏ
-          style={{ color: contrastColor }}>
+          style={{ color: finalTextColor }}>
           {displayName}
         </h1>
         {/* Bio */}
         {bio && (
           <p
             className="text-base md:text-lg text-center mb-8 max-w-lg px-2" // Giảm mb, thêm padding ngang
-            style={{ color: subtleContrastColor }}>
+            style={{ color: finalTextColor }}>
             {bio}
           </p>
         )}

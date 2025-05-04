@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import ProfileSettings from "../components/dashboard/ProfileSettings";
@@ -10,6 +10,10 @@ import ShareProfileCard from "../components/ShareProfileCard"; // <-- Import com
 function DashboardPage() {
   const { authState, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "Dashboard";
+  }, []);
 
   const handleLogout = () => {
     logout();
