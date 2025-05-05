@@ -26,7 +26,6 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-800 font-sans">
       {/* Background 3D */}
       <ThreeBackground /> {/* <<< Render component 3D */}
-      {/* Navigation Bar */}
       <nav className="bg-white shadow-sm sticky top-0 z-40 backdrop-blur-sm bg-opacity-80">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex justify-between items-center h-16">

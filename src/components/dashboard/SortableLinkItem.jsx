@@ -97,61 +97,65 @@ function SortableLinkItem({
     <li
       ref={setNodeRef}
       style={style}
-      // Thêm group để điều khiển hover cho các nút con
-      // Thêm border nhẹ thay vì shadow đậm khi tĩnh, shadow rõ khi kéo/hover
-      className={`group flex items-stretch transition-all duration-150 ease-in-out bg-white rounded-lg border border-gray-200/80 hover:border-gray-300 ${
-        isDragging
-          ? "shadow-xl scale-[1.02] border-indigo-300"
-          : "hover:shadow-md" // Shadow nhẹ khi hover, rõ khi kéo
-      } ${
-        isEditing
-          ? "ring-2 ring-indigo-400 ring-offset-1 border-transparent"
-          : "" // Bỏ border khi đang edit để ring đẹp hơn
-      }`}>
+      // Thay đổi padding tổng thể của li
+      className={`group flex items-stretch transition-all duration-150 ease-in-out bg-white rounded-lg border border-gray-200/80 hover:border-gray-300
+                  ${
+                    isDragging
+                      ? "shadow-xl scale-[1.02] border-indigo-300"
+                      : "hover:shadow-md"
+                  }
+                  ${
+                    isEditing
+                      ? "ring-2 ring-indigo-400 ring-offset-1 border-transparent"
+                      : ""
+                  }
+                  p-1.5 sm:p-0`} // <<< Thêm padding nhỏ mặc định, reset về 0 ở sm+ để các cột tự quản lý padding
+    >
       {/* === CỘT 1: Kéo thả và Icon === */}
+      {/* Điều chỉnh padding cột 1 */}
       <div
         className={`flex items-center flex-shrink-0 ${
-          isEditing ? "pr-2" : "pr-3"
+          isEditing ? "pr-1 sm:pr-2" : "pr-1.5 sm:pr-3"
         }`}>
-        {" "}
-        {/* Giảm padding phải khi edit */}
         {/* Drag Handle */}
-        {/* Không hiển thị nút kéo khi đang sửa */}
         {!isEditing && (
           <span
-            className="flex items-center p-3 cursor-grab touch-none text-gray-400 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-l-lg"
+            // Điều chỉnh padding nút kéo
+            className="flex items-center p-2 sm:p-3 cursor-grab touch-none text-gray-400 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-l-lg"
             {...attributes}
             {...listeners}
             title="Kéo để sắp xếp">
+            {/* Giữ nguyên kích thước icon */}
             <GripVertical className="h-5 w-5" />
           </span>
         )}
         {/* Icon Nền tảng/Loại Link */}
         <span
+          // Điều chỉnh padding trái khi edit
           className={`flex items-center ${
-            isEditing ? "pl-3" : ""
+            isEditing ? "pl-2 sm:pl-3" : ""
           } text-gray-500`}
           title={link.socialPlatform || link.linkType || "Link"}>
-          {" "}
-          {/* Thêm title cho icon */}
+          {/* Giữ nguyên kích thước icon */}
           {displayIcon}
         </span>
       </div>
 
-      {/* === CỘT 2: Nội dung chính (Title, URL, Form Edit) === */}
-      <div className="flex-grow min-w-0 flex flex-col justify-center py-2.5 pl-1 pr-3">
-        {" "}
-        {/* Dùng flex-col và justify-center để căn giữa dọc */}
+      {/* === CỘT 2: Nội dung chính === */}
+      {/* Điều chỉnh padding cột 2 */}
+      <div
+        className={`flex-grow min-w-0 flex flex-col justify-center ${
+          isEditing
+            ? "py-2 px-1.5 sm:px-2"
+            : "py-1.5 sm:py-2.5 pl-0.5 sm:pl-1 pr-1 sm:pr-3"
+        }`}>
         {isEditing ? (
-          /* --- Chế độ Sửa --- */
-          <div className="space-y-3 w-full">
-            {" "}
-            {/* Đảm bảo form chiếm đủ chiều rộng */}
+          <div className="space-y-2 sm:space-y-3 w-full">
             {/* Input Title */}
             <input
               name="title"
               type="text"
-              className="block w-full px-3 py-1.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
+              className="block w-full px-2.5 sm:px-3 py-1 sm:py-1.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition duration-150"
               placeholder="Tiêu đề link"
               value={editFormData.title}
               onChange={handleEditFormChange}
@@ -162,15 +166,14 @@ function SortableLinkItem({
             <input
               name="url"
               type="url"
-              className="block w-full px-3 py-1.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150"
+              className="block w-full px-2.5 sm:px-3 py-1 sm:py-1.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition duration-150"
               placeholder="https://example.com"
               value={editFormData.url}
               onChange={handleEditFormChange}
               required
             />
-            {/* Grid cho Selects */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {/* Select Loại Link */}
+            {/* Grid cho Selects - điều chỉnh gap */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
               <div>
                 <label
                   htmlFor={`edit-type-${link._id}`}
@@ -182,7 +185,7 @@ function SortableLinkItem({
                   name="linkType"
                   value={editFormData.linkType || "link"}
                   onChange={handleEditFormChange}
-                  className="block w-full pl-3 pr-10 py-1.5 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150">
+                  className="block w-full pl-2.5 sm:pl-3 pr-8 sm:pr-10 py-1 sm:py-1.5 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition duration-150">
                   <option value="link">Chỉ Link</option>
                   <option value="youtube">Nhúng YouTube</option>
                   <option value="spotify">Nhúng Spotify</option>
@@ -200,7 +203,7 @@ function SortableLinkItem({
                   name="socialPlatform"
                   value={editFormData.socialPlatform || ""}
                   onChange={handleEditFormChange}
-                  className="block w-full pl-3 pr-10 py-1.5 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150">
+                  className="block w-full pl-2.5 sm:pl-3 pr-8 sm:pr-10 py-1 sm:py-1.5 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition duration-150">
                   <option value="">-- Chọn Icon --</option>
                   <option value="facebook">Facebook</option>
                   <option value="instagram">Instagram</option>
@@ -214,43 +217,36 @@ function SortableLinkItem({
                 </select>
               </div>
             </div>
-            {/* Nút Lưu/Hủy */}
-            <div className="flex items-center justify-end space-x-2 pt-1">
+            {/* Nút Lưu/Hủy - điều chỉnh padding, space */}
+            <div className="flex items-center justify-end space-x-1.5 sm:space-x-2 pt-1">
               <button
                 type="button"
                 onClick={handleUpdateLink}
                 disabled={isSavingEdit}
-                className="inline-flex items-center justify-center px-4 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out">
+                className="inline-flex items-center justify-center px-3 sm:px-4 py-1 sm:py-1.5 border border-transparent rounded-md shadow-sm text-xs sm:text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none ... disabled:opacity-60 ...">
                 {isSavingEdit ? (
-                  <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                  <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-1.5 animate-spin" />
                 ) : (
-                  <Save className="w-4 h-4 mr-1.5" />
-                )}{" "}
-                {isSavingEdit ? "Đang lưu..." : "Lưu"}
+                  <Save className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-1.5" />
+                )}
+                {isSavingEdit ? "Lưu..." : "Lưu"}
               </button>
               <button
                 type="button"
                 onClick={handleCancelEdit}
-                className="inline-flex items-center justify-center px-4 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 transition duration-150 ease-in-out">
-                <X className="w-4 h-4 mr-1.5" /> Hủy
+                className="inline-flex items-center justify-center px-3 sm:px-4 py-1 sm:py-1.5 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none ... ">
+                <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-1.5" /> Hủy
               </button>
             </div>
           </div>
         ) : (
           /* --- Chế độ Hiển thị --- */
           <>
-            {/* Dòng Title và Click Count */}
-            <div className="flex items-center justify-between ">
-              {" "}
-              {/* Căn Title trái, Count phải */}
+            <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-gray-900 truncate pr-2">
-                {" "}
-                {/* Thêm padding phải để tránh chạm Count */}
                 {link.title || "Chưa có tiêu đề"}
               </p>
             </div>
-
-            {/* URL - Luôn hiển thị */}
             <a
               href={link.url}
               target="_blank"
@@ -263,38 +259,35 @@ function SortableLinkItem({
         )}
       </div>
 
-      {/* === CỘT 3: Nút chức năng (Chỉ hiển thị khi không Edit) === */}
+      {/* === CỘT 3: Nút chức năng === */}
       {!isEditing && (
-        <div className="flex-shrink-0 flex items-center pl-1 pr-2">
-          {" "}
-          {/* Điều chỉnh padding */}
-          {/* Các nút này chỉ hiện khi hover vào LI (dùng class 'group' ở thẻ li) */}
-          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
-            {/* Click Count - Chỉ hiển thị nếu lớn hơn 0 hoặc khi đang hover */}
+        <div className="flex-shrink-0 flex items-center pl-0.5 sm:pl-1 pr-1.5 sm:pr-2">
+          <div className="flex items-center space-x-0.5 sm:space-x-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
             <span
-              className={`flex items-center flex-shrink-0 text-xs text-indigo-600 font-medium transition-opacity duration-150 ${
+              className={`flex items-center flex-shrink-0 text-[10px] sm:text-xs text-indigo-600 font-medium ... ${
                 clickCountDisplay > 0
                   ? "opacity-100"
                   : "opacity-0 group-hover:opacity-100"
               }`}
               title="Số lượt click">
-              <Eye size={22} className="mr-1 text-3xl" />
+              <Eye size={14} sm:size={16} className="mr-0.5 sm:mr-1" />{" "}
               {clickCountDisplay}
             </span>
 
+            {/* Nút Edit - điều chỉnh padding */}
             <button
               onClick={() => handleStartEdit(link)}
-              className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-500 transition duration-150 ease-in-out"
+              className="p-1.5 sm:p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md focus:outline-none ..."
               aria-label="Sửa link"
               title="Sửa link">
-              <Pencil className="w-4 h-4" />
+              <Pencil className="w-3 h-3 sm:w-4 sm:h-4" /> {/* Icon nhỏ hơn */}
             </button>
             <button
               onClick={() => handleDeleteLink(link._id)}
-              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-red-500 transition duration-150 ease-in-out"
+              className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md focus:outline-none ..."
               aria-label="Xóa link"
               title="Xóa link">
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
