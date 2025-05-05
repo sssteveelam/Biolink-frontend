@@ -6,7 +6,9 @@
 Giao diện người dùng cho ứng dụng Biolink, xây dựng bằng React, Vite và Tailwind CSS. Cho phép người dùng đăng ký, đăng nhập, quản lý trang Biolink cá nhân và xem trang public của người khác.
 
 ## Live demo : https://biolink-fast.vercel.app/
-
+**TEST:**
+* **Account:**  huytest@example.com
+*  **Password:**  password123
 
 ## Hình ảnh các trang :
 * **Trang chủ:**
