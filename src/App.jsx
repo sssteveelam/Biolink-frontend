@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage"; // Import
 import { Toaster } from "react-hot-toast";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage"; // Import trang mới
 import ResetPasswordPage from "./pages/ResetPasswordPage"; // Import trang mới
+import HomePage from "./pages/HomePage";
 
 function App() {
   return (
@@ -35,6 +36,8 @@ function App() {
       />
       {/* ... */}
       <Routes>
+        {/* === Route cho Trang chủ === */}
+        <Route path="/" element={<HomePage />} />
         {/* Các route cụ thể */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -44,8 +47,6 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
         </Route>
-        {/* Redirect từ trang gốc sang trang login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />{" "}
         {/* <-- THÊM DÒNG NÀY */}
         {/* Route động cho trang public - Đặt ở cuối */}
         <Route path="/:username" element={<PublicProfilePage />} />

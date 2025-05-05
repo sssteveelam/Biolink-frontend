@@ -19,6 +19,7 @@ import {
   Download,
   Clipboard,
 } from "lucide-react"; // Import icons
+import { AiFillTikTok } from "react-icons/ai";
 import getYoutubeVideoId from "../utils/youtubeUtils";
 import toast from "react-hot-toast";
 import { QRCodeSVG } from "qrcode.react";
@@ -67,16 +68,12 @@ function PublicProfilePage() {
     fetchPublicProfile();
   }, [username]);
 
-  // Lấy kiểu nút từ profile, nếu không có thì dùng kiểu default
   const currentButtonStyle = profileData?.profile.buttonStyle || "rounded-lg";
 
   // --- Render Loading ---
   if (isLoading) {
     return (
-      // Spinner đẹp hơn, căn giữa màn hình
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        {" "}
-        {/* Thêm nền tạm thời khi loading */}
         <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
       </div>
     );
@@ -87,12 +84,10 @@ function PublicProfilePage() {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen text-center px-6 bg-gray-50">
         <AlertTriangle className="w-16 h-16 text-red-400 mb-6" />{" "}
-        {/* Icon lỗi */}
         <p className="text-2xl md:text-3xl text-red-600 mb-3 font-semibold">
           Oops! Có lỗi xảy ra
         </p>
         <p className="text-lg text-gray-600 mb-8 max-w-md">{error}</p>
-        {/* Có thể thêm nút quay lại hoặc làm mới */}
         <button
           onClick={() => window.location.reload()} // Nút làm mới trang đơn giản
           className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-base font-medium transition duration-150 ease-in-out">
@@ -104,7 +99,6 @@ function PublicProfilePage() {
 
   // --- Render Profile Data ---
   if (!profileData || !profileData.user) {
-    // Trường hợp hiếm gặp: API trả về 200 nhưng data rỗng
     return (
       <div className="flex flex-col justify-center items-center min-h-screen text-center px-6 bg-gray-50">
         <AlertTriangle className="w-16 h-16 text-yellow-400 mb-6" />
@@ -155,7 +149,7 @@ function PublicProfilePage() {
   const themeColor =
     profile?.themeColor && /^#[0-9A-F]{6}$/i.test(profile.themeColor)
       ? profile.themeColor
-      : "#ffffff"; // Màu trắng làm fallback nếu màu hex không hợp lệ
+      : "#ffffff";
 
   if (selectedThemeId && themeStyles[selectedThemeId]) {
     const themeValue = themeStyles[selectedThemeId];
@@ -163,32 +157,30 @@ function PublicProfilePage() {
       // Là theme ảnh
       backgroundStyle = {
         backgroundImage: themeValue,
-        backgroundSize: "cover", // Luôn cover
-        backgroundPosition: "center", // Luôn căn giữa
-        backgroundAttachment: "fixed", // (Tùy chọn) Làm nền đứng yên khi cuộn
-        backgroundColor: "#f3f4f6", // Màu nền fallback loading ảnh
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+        backgroundColor: "#f3f4f6",
       };
     } else {
       // Là theme gradient
       backgroundStyle = {
         backgroundImage: themeValue,
-        backgroundColor: themeColor, // Có thể dùng màu chính của theme làm fallback
+        backgroundColor: themeColor,
       };
     }
   } else {
-    // Dùng màu tùy chọn (themeColor)
     backgroundStyle = {
       backgroundColor: themeColor,
     };
   }
   // ==========================
 
-  // --- Tính màu chữ tương phản (giữ nguyên) ---
   const contrastColor = getContrastColor(
     backgroundStyle.backgroundColor || themeColor
   );
 
-  const userTextColor = profile?.textColor; // Lấy màu chữ người dùng chọn
+  const userTextColor = profile?.textColor;
   const finalTextColor = userTextColor || contrastColor;
 
   const bio = profile?.bio || "";
@@ -208,29 +200,25 @@ function PublicProfilePage() {
       link.socialPlatform === "other" ||
       link.socialPlatform === "website"
   );
-  const websiteLink = links.find((link) => link.socialPlatform === "website"); // Tìm link website riêng nếu có
+  const websiteLink = links.find((link) => link.socialPlatform === "website");
 
   /// Handle event click to process clickCount
   const handleLinkClick = async (linkId, linkUrl) => {
     if (!linkId || !linkUrl) return;
 
-    // Gọi API để ghi nhận lượt click (không cần đợi kết quả - fire and forget)
-    // Mình đặt trong try...catch để nó không làm dừng việc điều hướng nếu API lỗi.
-    // api/user/links
     try {
       api.post(`/api/user/links/${linkId}/click`); // Không cần await
     } catch (error) {
       console.error("Failed to track link click:", error); // Log lỗi nhưng không làm gì thêm
     }
 
-    // Điều hướng người dùng đến link đích trong tab mới
     window.open(linkUrl, "_blank", "noopener,noreferrer");
   };
 
   // ----------------------------------
   const publicProfileUrl = profileData
     ? `${window.location.origin}/${profileData.user.username}`
-    : ""; // Tạo URL ở đây
+    : "";
 
   const copyToClipboard = () => {
     if (!publicProfileUrl) return;
@@ -249,10 +237,9 @@ function PublicProfilePage() {
 
   const downloadQRCode = () => {
     const svgElement = qrCodeRef.current?.querySelector("svg");
-    const qrUsername = profileData?.user?.username || "profile"; // Lấy username để đặt tên file
+    const qrUsername = profileData?.user?.username || "profile";
     if (svgElement) {
       try {
-        // ... (logic download SVG giữ nguyên) ...
         const serializer = new XMLSerializer();
         let svgString = serializer.serializeToString(svgElement);
         if (!svgString.startsWith("<?xml")) {
@@ -264,7 +251,7 @@ function PublicProfilePage() {
         const url = URL.createObjectURL(blob);
         const downloadLink = document.createElement("a");
         downloadLink.href = url;
-        downloadLink.download = `${qrUsername}-biolink-qr.svg`; // Dùng username lấy được
+        downloadLink.download = `${qrUsername}-biolink-qr.svg`;
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
@@ -294,7 +281,6 @@ function PublicProfilePage() {
             <img
               src={user.avatarUrl}
               alt={`${displayName}'s avatar`}
-              // Bo tròn hoàn hảo, kích thước lớn hơn, viền trắng dày hơn, đổ bóng đẹp
               className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover shadow-xl border-4 border-white"
             />
           ) : (
@@ -309,7 +295,7 @@ function PublicProfilePage() {
         </div>
         {/* Tên */}
         <h1
-          className="text-2xl md:text-3xl font-bold mb-2 text-center break-words px-2" // Giảm kích thước chữ, thêm padding ngang nhỏ
+          className="text-2xl md:text-3xl font-bold mb-2 text-center break-words px-2"
           style={{ color: finalTextColor }}>
           {displayName}
         </h1>
@@ -317,7 +303,7 @@ function PublicProfilePage() {
         {/* Bio */}
         {bio && (
           <p
-            className="text-base md:text-lg text-center mb-4 max-w-lg px-2" // Giảm mb, thêm padding ngang
+            className="text-base md:text-lg text-center mb-4 max-w-lg px-2"
             style={{ color: finalTextColor }}>
             {bio}
           </p>
@@ -327,14 +313,12 @@ function PublicProfilePage() {
         <button
           onClick={() => setIsShareSectionVisible(!isShareSectionVisible)}
           className="absolute top-3 right-3 mt-2 mr-2 p-2 rounded-full transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent"
-          // Style nút share dựa trên màu nền/chữ
           style={{
             backgroundColor:
               backgroundStyle === "#ffffff"
                 ? "rgba(0, 0, 0, 0.05)"
-                : "rgba(255, 255, 255, 0.27)", // Nền mờ
-            color: finalTextColor, // Màu icon theo màu chữ chính
-            // ringColor: finalTextColor // Màu viền focus
+                : "rgba(255, 255, 255, 0.27)",
+            color: finalTextColor,
           }}
           aria-expanded={isShareSectionVisible}
           aria-label={
@@ -354,7 +338,6 @@ function PublicProfilePage() {
                             : "max-h-0 opacity-0"
                         }`} // Thêm margin top/bottom khi hiện
         >
-          {/* Thêm một lớp nền nhẹ cho section này */}
           <div
             className="p-4 space-y-4 rounded-lg border"
             style={{
@@ -379,7 +362,6 @@ function PublicProfilePage() {
             {/* Link và nút Copy */}
             <div className="flex items-center space-x-2 bg-white/80 p-2 rounded-md border border-gray-200">
               <LinkIcon className="w-4 h-4 text-indigo-600 flex-shrink-0 ml-1" />
-              {/* Input hiển thị link */}
               <input
                 type="text"
                 readOnly
@@ -387,7 +369,6 @@ function PublicProfilePage() {
                 className="flex-grow text-xs p-1 bg-transparent outline-none text-indigo-800 font-medium" // Cho chữ đậm hơn
                 onClick={(e) => e.target.select()} // Chọn text khi click input
               />
-              {/* Nút copy nhỏ hơn */}
               <button
                 onClick={copyToClipboard}
                 className="p-1.5 text-gray-500 hover:text-indigo-700 hover:bg-indigo-100 rounded-md focus:outline-none focus:ring-1 focus:ring-indigo-500 transition flex-shrink-0"
@@ -417,36 +398,32 @@ function PublicProfilePage() {
                 <a
                   key={link._id}
                   href={link.url}
-                  title={link.title || link.socialPlatform} // Thêm title cho tooltip
+                  title={link.title || link.socialPlatform}
                   onClick={(e) => {
-                    e.preventDefault(); // Ngăn trình duyệt điều hướng ngay lập tức
+                    e.preventDefault();
                     handleLinkClick(link._id, link.url);
                   }}
                   target="_blank"
                   rel="noopener noreferrer"
-                  // Style cho icon (màu, kích thước, hover)
                   className="text-gray-700 hover:text-indigo-600 transition-colors duration-200"
-                  style={{ color: contrastColor }} // Dùng màu tương phản cho icon
-                >
+                  style={{ color: contrastColor }}>
                   <SocialIcon platform={link.socialPlatform} size={28} />{" "}
-                  {/* Gọi component icon */}
                   <span className="sr-only">
                     {link.title || link.socialPlatform}
                   </span>{" "}
-                  {/* Cho accessibility */}
                 </a>
               ))}
             </div>
           )}
 
-          {/* Khu vực hiển thị Link Website (nếu tách riêng) */}
+          {/* Khu vực hiển thị Link Website */}
           {websiteLink &&
             websiteLink.map((link) => (
               <a
                 key={link._id}
                 href={link.url}
                 onClick={(e) => {
-                  e.preventDefault(); // Ngăn trình duyệt điều hướng ngay lập tức
+                  e.preventDefault();
                   handleLinkClick(link._id, link.url);
                 }}
                 target="_blank"
@@ -454,18 +431,14 @@ function PublicProfilePage() {
                 className={`flex items-center justify-center w-full px-6 py-3 mb-4 bg-white bg-opacity-90 backdrop-blur-md text-center text-lg font-semibold text-gray-800 shadow-md hover:scale-105 hover:bg-opacity-100 transform transition duration-200 ease-in-out border border-white/40 ${
                   profile?.buttonStyle || "rounded-lg"
                 }`}>
-                <Globe size={20} className="mr-2" /> {/* Icon website */}
+                <Globe size={20} className="mr-2" />
                 {websiteLink.title || "Website"}
               </a>
             ))}
-
-          {/* Khu vực hiển thị Links thường (như cũ) */}
+          {/* Link thường */}
           <div className="w-full max-w-lg flex flex-col items-center space-y-4">
-            {" "}
-            {/* Giảm space-y chút */}
             {regularLinks.length > 0
               ? regularLinks.map((link) => {
-                  // --- Kiểm tra loại link ---
                   if (link.linkType === "youtube") {
                     const videoId = getYoutubeVideoId(link.url); // Lấy ID video
                     if (videoId) {
@@ -554,7 +527,7 @@ function PublicProfilePage() {
                         key={link._id}
                         href={link.url}
                         onClick={(e) => {
-                          e.preventDefault(); // Ngăn trình duyệt điều hướng ngay lập tức
+                          e.preventDefault();
                           handleLinkClick(link._id, link.url);
                         }}
                         target="_blank"
@@ -565,10 +538,8 @@ function PublicProfilePage() {
                       </a>
                     );
                   }
-                  // --- Kết thúc kiểm tra loại link ---
                 })
-              : // Chỉ hiển thị nếu không có cả link thường và link MXH/website
-                socialLinks.length === 0 &&
+              : socialLinks.length === 0 &&
                 !websiteLink && (
                   <p style={{ color: getContrastColor(themeColor, 0.75) }}>
                     Chưa có link nào.
@@ -577,10 +548,8 @@ function PublicProfilePage() {
           </div>
         </div>
         {/* Footer */}
-        <p
-          className="mt-10 text-center text-xs"
-          style={{ color: getContrastColor(themeColor, 0.6) }}>
-          Powered by MyBiolink {/* Thay bằng tên ứng dụng của bạn */}
+        <p className="mt-10 text-center text-md text-white">
+          Powered by Biolink-Fast
         </p>
       </div>
     </div>
@@ -628,7 +597,7 @@ const SocialIcon = ({ platform, size = 24, className = "" }) => {
     case "twitter":
       return <Twitter size={size} className={className} />;
     case "tiktok":
-      return <Music size={size} className={className} />; // Ví dụ dùng tạm icon Music cho TikTok
+      return <AiFillTikTok size={size} className={className} />; // Ví dụ dùng tạm icon Music cho TikTok
     case "youtube":
       return <Youtube size={size} className={className} />;
     case "spotify":

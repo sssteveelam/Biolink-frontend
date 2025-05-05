@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import ProfileSettings from "../components/dashboard/ProfileSettings";
 import LinkManager from "../components/dashboard/LinkManager";
 import toast from "react-hot-toast";
@@ -85,6 +85,12 @@ function DashboardPage() {
             </section>
           </main>
         )}
+      </div>
+
+      <div className="w-full text-center mt-10 ">
+        <a href="/" className="text-md text-white">
+          Powered by Biolink-Fast
+        </a>
       </div>
     </div>
   );
