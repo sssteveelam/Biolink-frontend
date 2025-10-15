@@ -18,232 +18,219 @@ export default function ProfileSettings() {
   const [isUploading, setIsUploading] = useState(false);
   const [buttonStyle, setButtonStyle] = useState("rounded-lg"); // Giá trị khởi tạo nên giống default ở backend
 
-  const predefinedThemes = [
-    {
-      id: "custom-color-#e0e0e0",
-      name: "Màu tùy chọn",
-      previewStyle: { backgroundColor: "#e0e0e0" }, // Màu xám nhạt làm preview
-    },
-    {
-      id: "gradient-sunset",
-      name: "Hoàng hôn",
-     previewStyle: {
-        backgroundImage:
-          "url(https://ik.imagekit.io/pemon1psn/pngtree-abstract-cloudy-background-beautiful-natural-streaks-of-sky-and-clouds-red-image_15684333.jpg?updatedAt=1760520262558)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      // Giá trị thực tế sẽ được lưu ở backend (hoặc frontend tự xử lý dựa trên ID)
-      // Ở đây ví dụ lưu cả gradient và màu nền chính (nếu cần fallback)
-      value: {
-        type: "gradient",
-        style: "linear-gradient(to right, #ff7e5f, #feb47b)",
-        primaryColor: "#feb47b",
-      },
-    },
-    {
-      id: "gradient-ocean",
-      name: "Đại dương",
-      previewStyle: {
-        backgroundImage:
-          "url(https://ik.imagekit.io/pemon1psn/pngtree-abstract-cloudy-background-beautiful-natural-streaks-of-sky-and-clouds-red-image_15684333.jpg?updatedAt=1760520262558)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "gradient",
-        style: "linear-gradient(to right, #00c6ff, #0072ff)",
-        primaryColor: "#0072ff",
-      },
-    },
-    {
-      id: "image-forest",
-      name: "Rừng xanh",
-      // Lưu ý: URL phải bắt đầu bằng / nếu ảnh nằm trong thư mục public
-      previewStyle: {
-        backgroundImage:
-          "url(https://ik.imagekit.io/pemon1psn/maxresdefault.jpg?updatedAt=1760520744494)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://ik.imagekit.io/pemon1psn/maxresdefault.jpg?updatedAt=1760520744494)",
-        primaryColor: "#228B22",
-      }, // Màu fallback
-    },
-    {
-      id: "image-mountain",
-      name: "Núi tuyết",
-      previewStyle: {
-        backgroundImage:
-          "url(https://ik.imagekit.io/pemon1psn/thoi-diem-dep-nhat-de-chinh-phuc-nui-tuyet-titlis-la-vao-mua-dong.jpg?updatedAt=1760520930565)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://ik.imagekit.io/pemon1psn/thoi-diem-dep-nhat-de-chinh-phuc-nui-tuyet-titlis-la-vao-mua-dong.jpg?updatedAt=1760520930565)",
-        primaryColor: "#ADD8E6",
-      },
-    },
+  // giữ nguyên themeStyles như bạn đang có
+const themeStyles = {
+  "custom-color-#e0e0e0": "#e0e0e0",
+  "gradient-sunset": "linear-gradient(to right, #ff7e5f, #feb47b)",
+  "gradient-ocean": "linear-gradient(to right, #00c6ff, #0072ff)",
+  "image-forest":
+    "url(https://ik.imagekit.io/pemon1psn/maxresdefault.jpg?updatedAt=1760520744494)",
+  "image-mountain":
+    "url(https://ik.imagekit.io/pemon1psn/premium_photo-1672115680958-54438df0ab82.jfif?updatedAt=1760521599441)",
+  "image-hagiang":
+    "url(https://ik.imagekit.io/pemon1psn/the-adventour-road-in-ha-giang-loop.jpg?updatedAt=1760521661516)",
+  "image-Home":
+    "url(https://ik.imagekit.io/pemon1psn/design-your-dream-home.jpg?updatedAt=1760521698259)",
+  "image-cat":
+    "url(https://ik.imagekit.io/pemon1psn/thumb-1920-1348497.png?updatedAt=1760521832100)",
+  "image-driver":
+    "url(https://ik.imagekit.io/pemon1psn/photo-1704340142770-b52988e5b6eb.jfif?updatedAt=1760521897560)",
+  "image-sky":
+    "url(https://ik.imagekit.io/pemon1psn/photo-1657598339759-fd1432d833f0.jfif?updatedAt=1760521933255)",
+  "image-strawberry":
+    "url(https://ik.imagekit.io/pemon1psn/photo-1560239659-35501685e108.jfif?updatedAt=1760521970870)",
+  "image-glassmorphism":
+    "url(https://ik.imagekit.io/pemon1psn/premium_photo-1671308539073-ebf8985a6a11.jfif?updatedAt=1760522013945)",
+  "image-neon":
+    "url(https://ik.imagekit.io/pemon1psn/realistic-neon-lights-background_23-2148916637.jpg?updatedAt=1760522100634)",
+  "image-maybay":
+    "url(https://ik.imagekit.io/pemon1psn/Cac-may-bay-thuong-mai.webp?updatedAt=1760522130577)",
+};
 
-    {
-      id: "image-hagiang",
-      name: "Hà Giang",
-      previewStyle: {
-        backgroundImage:
-          "url(https://media-hosting.imagekit.io/fd8f82dd192941cd/1_nui_doi_tuyet_tac_thien_nhien_hung_vi_giua_cao_nguyen_da_dong_van_367c4971b5.jpg?Expires=1840869727&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=1N9tCMFdAfwk1TGlO0eRLb96fN2Ci-Sp7qPjXLfQ9XAW~-qWC3FIVcJZJXI2TRnClQTnWfsgpofEM17y5e0LvxCH86dcQmHhPEmVBO-oFdDUYrL5LXWhBCgqjMX2L8O4yl2xuyU2MavaPnIkl-E8sE0Lhegw0ABaigPPe0eQDIlAlI8MW~Q-QjsrvBK6CjOPmjk6tkQ1bGAC7l06j-TeA429F4q292IcQjw39NYlva9sofxxWP5elsmyHTOh2mLNdNcgECY82xYGvyor3Ev0JhXwVtc8qJRTA45dqgFylkr6oYUEdrE1P6-3shI~mPxjOpmwfH3ktb7x1PYQo3s2iw__)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://media-hosting.imagekit.io/fd8f82dd192941cd/1_nui_doi_tuyet_tac_thien_nhien_hung_vi_giua_cao_nguyen_da_dong_van_367c4971b5.jpg?Expires=1840869727&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=1N9tCMFdAfwk1TGlO0eRLb96fN2Ci-Sp7qPjXLfQ9XAW~-qWC3FIVcJZJXI2TRnClQTnWfsgpofEM17y5e0LvxCH86dcQmHhPEmVBO-oFdDUYrL5LXWhBCgqjMX2L8O4yl2xuyU2MavaPnIkl-E8sE0Lhegw0ABaigPPe0eQDIlAlI8MW~Q-QjsrvBK6CjOPmjk6tkQ1bGAC7l06j-TeA429F4q292IcQjw39NYlva9sofxxWP5elsmyHTOh2mLNdNcgECY82xYGvyor3Ev0JhXwVtc8qJRTA45dqgFylkr6oYUEdrE1P6-3shI~mPxjOpmwfH3ktb7x1PYQo3s2iw__)",
-        primaryColor: "#9fb43d",
-      },
+// NEW: predefinedThemes đã được chuyển link ảnh sang từ themeStyles
+const predefinedThemes = [
+  {
+    id: "custom-color-#e0e0e0",
+    name: "Màu tùy chọn",
+    previewStyle: { backgroundColor: "#e0e0e0" },
+  },
+  {
+    id: "gradient-sunset",
+    name: "Hoàng hôn",
+    previewStyle: { backgroundImage: "linear-gradient(to right, #ff7e5f, #feb47b)" },
+    value: {
+      type: "gradient",
+      style: "linear-gradient(to right, #ff7e5f, #feb47b)",
+      primaryColor: "#feb47b",
     },
+  },
+  {
+    id: "gradient-ocean",
+    name: "Đại dương",
+    previewStyle: { backgroundImage: "linear-gradient(to right, #00c6ff, #0072ff)" },
+    value: {
+      type: "gradient",
+      style: "linear-gradient(to right, #00c6ff, #0072ff)",
+      primaryColor: "#0072ff",
+    },
+  },
 
-    {
-      id: "image-maybay",
-      name: "Máy bay",
-      previewStyle: {
-        backgroundImage:
-          "url(https://media-hosting.imagekit.io/205f895b8a9a4cc0/A50%20-%20NKVK%2036.jpeg?Expires=1840871485&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=xk8eAahnvkFp9Fsz7rToTI8qP4DEQXS8c41cn1yVDiyUhnn4iBa1msx8w2sVyBODmtJaWd~7jmGKZRmImZ1x1CkYd0YM4Km0eQX3ZU10naov6dlAKYIvQut7bGk1F4AA0GJ1MPBkICLPIHWeBbmYoV-2LtL94-So3s~AY7LPhpqp4lVgVDYnDMlrcfNwgEYheQEk0I3x3kWuUAmGi44oGztOwa3OAB6gMXrDz40LWU~PtYAviCLqSvXRKOge2ajgCYK8tKn2syTcqba2cfOl4MSH2HDv76-dxeP-347tK3xjcdLvWqGNzJJAU1nnCQrKbwtOT89MAFUoLH5hUp-6iA__)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://media-hosting.imagekit.io/205f895b8a9a4cc0/A50%20-%20NKVK%2036.jpeg?Expires=1840871485&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=xk8eAahnvkFp9Fsz7rToTI8qP4DEQXS8c41cn1yVDiyUhnn4iBa1msx8w2sVyBODmtJaWd~7jmGKZRmImZ1x1CkYd0YM4Km0eQX3ZU10naov6dlAKYIvQut7bGk1F4AA0GJ1MPBkICLPIHWeBbmYoV-2LtL94-So3s~AY7LPhpqp4lVgVDYnDMlrcfNwgEYheQEk0I3x3kWuUAmGi44oGztOwa3OAB6gMXrDz40LWU~PtYAviCLqSvXRKOge2ajgCYK8tKn2syTcqba2cfOl4MSH2HDv76-dxeP-347tK3xjcdLvWqGNzJJAU1nnCQrKbwtOT89MAFUoLH5hUp-6iA__)",
-        primaryColor: "#9fb43d",
-      },
+  // --- IMAGE THEMES (đã dùng link từ themeStyles) ---
+  {
+    id: "image-forest",
+    name: "Rừng xanh",
+    previewStyle: {
+      backgroundImage: themeStyles["image-forest"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
     },
-
-    {
-      id: "image-neon",
-      name: "Neon",
-      previewStyle: {
-        backgroundImage:
-          "url(https://media-hosting.imagekit.io/4018b30587f04a41/neon.jpg?Expires=1840861666&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=ZOf6HQsDsjUX~AvD~KOXNM2DoatVfWFes0F0hTQCBeRgomtSJzy0Vrk~ErG79Pkn5tBURgAn44z6YDT6Q3Gxx6C71Kql1HO5Sw3mYpghjIVxhF91L0AKnA6f0WrfMh6zvUI88tQEfbmJRfEN5yyDNdnv~Ep1Hq0cYN70zKMYCf5dcCNtkucY6LYM26dZNgXQZFOUJWSxvxwTB367qNkwuQct060~kfGuuTHrIsUprRZL8xVIQoFNagJphnCx1lgZZ2XoTJ56d3f7ZWcJR~BM3MtiVWHvZgjovmiPs0~n5JkLenXVBgHBPGC0BlYxhWBqzG~lPzxHbOi23zVbxHZLlQ__)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://media-hosting.imagekit.io/4018b30587f04a41/neon.jpg?Expires=1840861666&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=ZOf6HQsDsjUX~AvD~KOXNM2DoatVfWFes0F0hTQCBeRgomtSJzy0Vrk~ErG79Pkn5tBURgAn44z6YDT6Q3Gxx6C71Kql1HO5Sw3mYpghjIVxhF91L0AKnA6f0WrfMh6zvUI88tQEfbmJRfEN5yyDNdnv~Ep1Hq0cYN70zKMYCf5dcCNtkucY6LYM26dZNgXQZFOUJWSxvxwTB367qNkwuQct060~kfGuuTHrIsUprRZL8xVIQoFNagJphnCx1lgZZ2XoTJ56d3f7ZWcJR~BM3MtiVWHvZgjovmiPs0~n5JkLenXVBgHBPGC0BlYxhWBqzG~lPzxHbOi23zVbxHZLlQ__)",
-        primaryColor: "#9fb43d",
-      },
+    value: {
+      type: "image",
+      style: themeStyles["image-forest"],
+      primaryColor: "#228B22",
     },
-
-    {
-      id: "image-glassmorphism",
-      name: "Glassmorphism",
-      previewStyle: {
-        backgroundImage:
-          "url(https://media-hosting.imagekit.io/930e08babf864061/glassmorphism.jpg?Expires=1840861666&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=as1TZwpJp4Sn82w8D5vR-5a-wAQkq6UVVIUa~SOMM16V5eFnR5-lQVPCiTA87i7veKT1ZpNRCG2v2o-DMnbc12L2UTfos9TfWRkaSJvI6TGTGIGgY-fP0LVZDWXID5YnI0Xy~FbC-bPXcybycMNW-WDsjzTtHXHCmqH3aUX2v6bvFyAlen~9ubZ-pOkLDXNrEeIBV-5YaHp9VTtwNnhIfGuLJ0G0DwpgQgSCd-tfAtqDNyRFDiTZvVuNppYgGMavR3XMSw550wyIEiLmJLZTzOP6--~3JeXZan7gSZb3P1E1Nj0kwh0t7vQOpb5mll2ISWMATTwOkYo8YQc~E2O0BQ__)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://media-hosting.imagekit.io/930e08babf864061/glassmorphism.jpg?Expires=1840861666&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=as1TZwpJp4Sn82w8D5vR-5a-wAQkq6UVVIUa~SOMM16V5eFnR5-lQVPCiTA87i7veKT1ZpNRCG2v2o-DMnbc12L2UTfos9TfWRkaSJvI6TGTGIGgY-fP0LVZDWXID5YnI0Xy~FbC-bPXcybycMNW-WDsjzTtHXHCmqH3aUX2v6bvFyAlen~9ubZ-pOkLDXNrEeIBV-5YaHp9VTtwNnhIfGuLJ0G0DwpgQgSCd-tfAtqDNyRFDiTZvVuNppYgGMavR3XMSw550wyIEiLmJLZTzOP6--~3JeXZan7gSZb3P1E1Nj0kwh0t7vQOpb5mll2ISWMATTwOkYo8YQc~E2O0BQ__)",
-        primaryColor: "#9fb43d",
-      },
+  },
+  {
+    id: "image-mountain",
+    name: "Núi tuyết",
+    previewStyle: {
+      backgroundImage: themeStyles["image-mountain"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
     },
-
-    {
-      id: "image-strawberry",
-      name: "Strawberry",
-      previewStyle: {
-        backgroundImage:
-          "url(https://media-hosting.imagekit.io/613bb3c130e84155/strawberry.png?Expires=1840861666&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=2cMe-LS~6NzgFh-Pa62ZWgqrZalHgzpLAdIBu~ohgMYoGcEmt5k4oAh6Uwcw8rh8558yDC1Q9bhB8SEdMUnZykieJ5yu2IDCA9US~ERmFdDMrSq938QfvcvOybbr2tgk4Z9B5z1oPRMr8O~fWM2sR~pEnneQAEhiCDTyMolChyeI2dVCAivYHBOE7NgRI5f-o~63NEx9rfqS3TxT-FZVWrPRJajJpp-nIc9k8Lu2yJjfmcKXNJn-BNsJP3dspbZyHKEgVStv1PC0DzNZPi4SUWGJhTbsKA~8e1N-HiLBdJkbtqr8EK9v3KlRTM15LyFnso8uYWbcu0UAlnCCbKb0Xw__)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://media-hosting.imagekit.io/613bb3c130e84155/strawberry.png?Expires=1840861666&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=2cMe-LS~6NzgFh-Pa62ZWgqrZalHgzpLAdIBu~ohgMYoGcEmt5k4oAh6Uwcw8rh8558yDC1Q9bhB8SEdMUnZykieJ5yu2IDCA9US~ERmFdDMrSq938QfvcvOybbr2tgk4Z9B5z1oPRMr8O~fWM2sR~pEnneQAEhiCDTyMolChyeI2dVCAivYHBOE7NgRI5f-o~63NEx9rfqS3TxT-FZVWrPRJajJpp-nIc9k8Lu2yJjfmcKXNJn-BNsJP3dspbZyHKEgVStv1PC0DzNZPi4SUWGJhTbsKA~8e1N-HiLBdJkbtqr8EK9v3KlRTM15LyFnso8uYWbcu0UAlnCCbKb0Xw__)",
-        primaryColor: "#9fb43d",
-      },
+    value: {
+      type: "image",
+      style: themeStyles["image-mountain"],
+      primaryColor: "#ADD8E6",
     },
-
-    {
-      id: "image-sky",
-      name: "Sky",
-      previewStyle: {
-        backgroundImage:
-          "url(https://media-hosting.imagekit.io/85762aca4db54c93/Blue%20and%20Green%20Illustrated%20Nature%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=yxIRfdGZL9Xmzp~fxC-ZkpgzGrYPPL0n7VsrSioQFA2U2t5SGwrTX4bHAKJ7NDA-m18Mqmet9or6DisAEAJq8mwPAwbuRnZcVR5r8-GWyEtOx~EWDNPVsKKn5T2D9ld1bWtEZliJGqmk78Qk7xNpJ3qGa2t-qgcFeSxmrCh6gSo9Dg-EvI7KiDhBbz~qht3pJzQppfOm6TKOM-i5XnJSh4V5zCJDtvLChieT1~yu5eRn~ymoMP-FYP6A4-m~r2ehbBjuV95E2fYJjYb6fm2sj3yRIECvxWGBzu9-sh5ORqrlRQwnxl~TKakH5Nr897FCTXjJR9YubviB~KCYxAtK~Q__)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://media-hosting.imagekit.io/85762aca4db54c93/Blue%20and%20Green%20Illustrated%20Nature%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=yxIRfdGZL9Xmzp~fxC-ZkpgzGrYPPL0n7VsrSioQFA2U2t5SGwrTX4bHAKJ7NDA-m18Mqmet9or6DisAEAJq8mwPAwbuRnZcVR5r8-GWyEtOx~EWDNPVsKKn5T2D9ld1bWtEZliJGqmk78Qk7xNpJ3qGa2t-qgcFeSxmrCh6gSo9Dg-EvI7KiDhBbz~qht3pJzQppfOm6TKOM-i5XnJSh4V5zCJDtvLChieT1~yu5eRn~ymoMP-FYP6A4-m~r2ehbBjuV95E2fYJjYb6fm2sj3yRIECvxWGBzu9-sh5ORqrlRQwnxl~TKakH5Nr897FCTXjJR9YubviB~KCYxAtK~Q__)",
-        primaryColor: "#9fb43d",
-      },
+  },
+  {
+    id: "image-hagiang",
+    name: "Hà Giang",
+    previewStyle: {
+      backgroundImage: themeStyles["image-hagiang"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
     },
-
-    {
-      id: "image-driver",
-      name: "Driver",
-      previewStyle: {
-        backgroundImage:
-          "url(https://media-hosting.imagekit.io/56df0180de9e48c9/Blue%20and%20White%20Simple%20Nature%20Flower%20Water%20Quotes%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=Fa7U~yo~ITbO7vybD9MJSM5QVkXZZO04uYGRQLjufSkY8k13fkKrI-aAYpaX0hzzezsq5QKx85Mc1TlzY9S5fchQIvmF~~OrsYO-1g4WVizf5XytC1myJZbXbT0XSXFAcHOl6pW06XFVwWLV8grhILB~eJkM4ZQ25sxwj6IiBOUz25a3DSPgc8oNf65p01oUVTvxdUBN5EumkCpUfGz8783-4KJgvFpAD0b6UHu0PptT3y6exqzGlMr7r8DO9CMl5~ubbP~qnyl2DbfEhhvQEafLxm55iWXpT4z06twwuIydwYlJyo~1xRtCFt6MVuVuYBVGzwWE2l1CwThBCDQU~Q__)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://media-hosting.imagekit.io/56df0180de9e48c9/Blue%20and%20White%20Simple%20Nature%20Flower%20Water%20Quotes%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=Fa7U~yo~ITbO7vybD9MJSM5QVkXZZO04uYGRQLjufSkY8k13fkKrI-aAYpaX0hzzezsq5QKx85Mc1TlzY9S5fchQIvmF~~OrsYO-1g4WVizf5XytC1myJZbXbT0XSXFAcHOl6pW06XFVwWLV8grhILB~eJkM4ZQ25sxwj6IiBOUz25a3DSPgc8oNf65p01oUVTvxdUBN5EumkCpUfGz8783-4KJgvFpAD0b6UHu0PptT3y6exqzGlMr7r8DO9CMl5~ubbP~qnyl2DbfEhhvQEafLxm55iWXpT4z06twwuIydwYlJyo~1xRtCFt6MVuVuYBVGzwWE2l1CwThBCDQU~Q__)",
-        primaryColor: "#9fb43d",
-      },
+    value: {
+      type: "image",
+      style: themeStyles["image-hagiang"],
+      primaryColor: "#9fb43d",
     },
-
-    {
-      id: "image-cat",
-      name: "Cat",
-      previewStyle: {
-        backgroundImage:
-          "url(https://media-hosting.imagekit.io/f5e9bf77cdc548be/Green%20Orange%20Illustrated%20Cat%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=GAIvnUQYvkbL5fPZR1MT1LcJGB-lHYxjX332hfgUUafncOy8SiRG-VAV~7AiBeevXMSFBVbvT5BBmoucBlQ15i67HzNPWbU6XJRswFOrrD5oKcRXBSBJayb5YmwFdKvj-j~hI-ga-zwi9IVJEZRttB7nsn7BU3EdEf~9HHmjxq277yxJOl63KaV~xN9HmZQ53Z0IHJg0lur7j7gZ18bIacl9iaNeAG1yTEO0zjkT-2~g3qQgyWgHJAkcwXxUGFQf47Pwlmg6r61xlOJDLF8rny~McBqycfzURsjKXIpI-oapLcN2BP3o-5NeT82vBz4NHNnTkcVJIb6Mcy~TMC3JTA__)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://media-hosting.imagekit.io/f5e9bf77cdc548be/Green%20Orange%20Illustrated%20Cat%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=GAIvnUQYvkbL5fPZR1MT1LcJGB-lHYxjX332hfgUUafncOy8SiRG-VAV~7AiBeevXMSFBVbvT5BBmoucBlQ15i67HzNPWbU6XJRswFOrrD5oKcRXBSBJayb5YmwFdKvj-j~hI-ga-zwi9IVJEZRttB7nsn7BU3EdEf~9HHmjxq277yxJOl63KaV~xN9HmZQ53Z0IHJg0lur7j7gZ18bIacl9iaNeAG1yTEO0zjkT-2~g3qQgyWgHJAkcwXxUGFQf47Pwlmg6r61xlOJDLF8rny~McBqycfzURsjKXIpI-oapLcN2BP3o-5NeT82vBz4NHNnTkcVJIb6Mcy~TMC3JTA__)",
-        primaryColor: "#9fb43d",
-      },
+  },
+  {
+    id: "image-Home",
+    name: "Home",
+    previewStyle: {
+      backgroundImage: themeStyles["image-Home"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
     },
-
-    {
-      id: "image-Home",
-      name: "Home",
-      previewStyle: {
-        backgroundImage:
-          "url(https://media-hosting.imagekit.io/bf8a6ed53cdd434c/Yellow%20and%20Pink%20Colorful%20Boy%20Sleeping%20In%20The%20Room%20anime%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=hQ6d5PNzXCYdrWss220VB42JT1jXyFaPOqkSoKV7sxvpQTquKskqMpsMpv5~vvQYAZIzMDzeQssduHEAQ69r-KcemvbtdflUt00YThesvj4fAovaslcrrWeU7tp0ry8TfKV4d-gzfLY8FeqFpm42JtVQCbL-GgrTHQOgKgqlayQaPUMU0ci2JeJzOLE-3YlSqbo2B9lnz7aGCeWqNTmRb3J7GD9MuD6JSMmRG5RHZnZlWDfhx9010oGaK6DrVvsal7NLrCv0MOWUE7ERZjMQ4B5lhUWJ~~k65QiYrzNwgYacsdKCCO-i5t4wF5uJgy6ene-W4Y0F3uMitEOyzCcKsA__)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      },
-      value: {
-        type: "image",
-        style:
-          "url(https://media-hosting.imagekit.io/bf8a6ed53cdd434c/Yellow%20and%20Pink%20Colorful%20Boy%20Sleeping%20In%20The%20Room%20anime%20Desktop%20Wallpaper.png?Expires=1840872063&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=hQ6d5PNzXCYdrWss220VB42JT1jXyFaPOqkSoKV7sxvpQTquKskqMpsMpv5~vvQYAZIzMDzeQssduHEAQ69r-KcemvbtdflUt00YThesvj4fAovaslcrrWeU7tp0ry8TfKV4d-gzfLY8FeqFpm42JtVQCbL-GgrTHQOgKgqlayQaPUMU0ci2JeJzOLE-3YlSqbo2B9lnz7aGCeWqNTmRb3J7GD9MuD6JSMmRG5RHZnZlWDfhx9010oGaK6DrVvsal7NLrCv0MOWUE7ERZjMQ4B5lhUWJ~~k65QiYrzNwgYacsdKCCO-i5t4wF5uJgy6ene-W4Y0F3uMitEOyzCcKsA__)",
-        primaryColor: "#9fb43d",
-      },
+    value: {
+      type: "image",
+      style: themeStyles["image-Home"],
+      primaryColor: "#9fb43d",
     },
-    // Thêm các theme khác của bạn vào đây
-  ];
+  },
+  {
+    id: "image-cat",
+    name: "Cat",
+    previewStyle: {
+      backgroundImage: themeStyles["image-cat"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    },
+    value: {
+      type: "image",
+      style: themeStyles["image-cat"],
+      primaryColor: "#9fb43d",
+    },
+  },
+  {
+    id: "image-driver",
+    name: "Driver",
+    previewStyle: {
+      backgroundImage: themeStyles["image-driver"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    },
+    value: {
+      type: "image",
+      style: themeStyles["image-driver"],
+      primaryColor: "#9fb43d",
+    },
+  },
+  {
+    id: "image-sky",
+    name: "Sky",
+    previewStyle: {
+      backgroundImage: themeStyles["image-sky"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    },
+    value: {
+      type: "image",
+      style: themeStyles["image-sky"],
+      primaryColor: "#9fb43d",
+    },
+  },
+  {
+    id: "image-strawberry",
+    name: "Strawberry",
+    previewStyle: {
+      backgroundImage: themeStyles["image-strawberry"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    },
+    value: {
+      type: "image",
+      style: themeStyles["image-strawberry"],
+      primaryColor: "#9fb43d",
+    },
+  },
+  {
+    id: "image-glassmorphism",
+    name: "Glassmorphism",
+    previewStyle: {
+      backgroundImage: themeStyles["image-glassmorphism"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    },
+    value: {
+      type: "image",
+      style: themeStyles["image-glassmorphism"],
+      primaryColor: "#9fb43d",
+    },
+  },
+  {
+    id: "image-neon",
+    name: "Neon",
+    previewStyle: {
+      backgroundImage: themeStyles["image-neon"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    },
+    value: {
+      type: "image",
+      style: themeStyles["image-neon"],
+      primaryColor: "#9fb43d",
+    },
+  },
+  {
+    id: "image-maybay",
+    name: "Máy bay",
+    previewStyle: {
+      backgroundImage: themeStyles["image-maybay"],
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    },
+    value: {
+      type: "image",
+      style: themeStyles["image-maybay"],
+      primaryColor: "#9fb43d",
+    },
+  },
+];
 
   // --- Fetch profile data ---
   useEffect(() => {
