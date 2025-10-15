@@ -27,8 +27,11 @@ export default function ProfileSettings() {
     {
       id: "gradient-sunset",
       name: "Hoàng hôn",
-      previewStyle: {
-        backgroundImage: "linear-gradient(to right, #ff7e5f, #feb47b)",
+     previewStyle: {
+        backgroundImage:
+          "url(https://ik.imagekit.io/pemon1psn/pngtree-abstract-cloudy-background-beautiful-natural-streaks-of-sky-and-clouds-red-image_15684333.jpg?updatedAt=1760520262558)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       },
       // Giá trị thực tế sẽ được lưu ở backend (hoặc frontend tự xử lý dựa trên ID)
       // Ở đây ví dụ lưu cả gradient và màu nền chính (nếu cần fallback)
@@ -42,7 +45,10 @@ export default function ProfileSettings() {
       id: "gradient-ocean",
       name: "Đại dương",
       previewStyle: {
-        backgroundImage: "linear-gradient(to right, #00c6ff, #0072ff)",
+        backgroundImage:
+          "url(https://ik.imagekit.io/pemon1psn/pngtree-abstract-cloudy-background-beautiful-natural-streaks-of-sky-and-clouds-red-image_15684333.jpg?updatedAt=1760520262558)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       },
       value: {
         type: "gradient",
@@ -56,14 +62,14 @@ export default function ProfileSettings() {
       // Lưu ý: URL phải bắt đầu bằng / nếu ảnh nằm trong thư mục public
       previewStyle: {
         backgroundImage:
-          "url(https://media-hosting.imagekit.io/6b6f6d55318a4eb7/rung_c7171.webp?Expires=1840862218&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=hq27LNVF3LS6EPUtMKHE9DRnl8IBJPONibqlf1JShTqUjY2Iyu7Ms4Zg2CoQNAELkxlgOKNRKC3MR79a4YP6xs8a1dSrVn~rxaUb3sAqAvajRJIoDgvvVrcK~eHx5eWP7AQ2g6tHxsz73vJJh9qWt97TgMeRGSLWeAlPkGMw5Xiq4jssllBl~pXfHI~29N~iNK2Zy22Y22kplNBA3PI7k4wIIEBxWIKbPbTdO1F0Qd1bzEc8cbeSO6tc-sdkvuvGQtwcF1Ii1ayRQqeXtvwOlxHYave9iFZZVZ9bc1lHc1UXXQsU-SWT3ptLQeGkYZ2g9GE9OWe4IPF6U-c9JF9LsA__)",
+          "url(https://ik.imagekit.io/pemon1psn/maxresdefault.jpg?updatedAt=1760520744494)",
         backgroundSize: "cover",
         backgroundPosition: "center",
       },
       value: {
         type: "image",
         style:
-          "url(https://media-hosting.imagekit.io/6b6f6d55318a4eb7/rung_c7171.webp?Expires=1840862218&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=hq27LNVF3LS6EPUtMKHE9DRnl8IBJPONibqlf1JShTqUjY2Iyu7Ms4Zg2CoQNAELkxlgOKNRKC3MR79a4YP6xs8a1dSrVn~rxaUb3sAqAvajRJIoDgvvVrcK~eHx5eWP7AQ2g6tHxsz73vJJh9qWt97TgMeRGSLWeAlPkGMw5Xiq4jssllBl~pXfHI~29N~iNK2Zy22Y22kplNBA3PI7k4wIIEBxWIKbPbTdO1F0Qd1bzEc8cbeSO6tc-sdkvuvGQtwcF1Ii1ayRQqeXtvwOlxHYave9iFZZVZ9bc1lHc1UXXQsU-SWT3ptLQeGkYZ2g9GE9OWe4IPF6U-c9JF9LsA__)",
+          "url(https://ik.imagekit.io/pemon1psn/maxresdefault.jpg?updatedAt=1760520744494)",
         primaryColor: "#228B22",
       }, // Màu fallback
     },
@@ -72,14 +78,14 @@ export default function ProfileSettings() {
       name: "Núi tuyết",
       previewStyle: {
         backgroundImage:
-          "url(https://media-hosting.imagekit.io/e4685b3268a147b0/3900141628014723270.webp?Expires=1840862277&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=ep4X6Coij27mZoUxciRW6fo05aN4qkpAoTE1tJY8KWse7nfeDD3P38yE74lFVZWbTA264gao2ts02KKh604FxPf4B5TDghAfJ4ULLUnxGEVX6HOHUOLuv4bbuHYxE8LMdwbF5k5hbO5PKHVYFkwHyDrCzRfOv3wEEfAD8ThbX864xPKTspteD7NMUuDNbBndvsnJxOUbB83ijM53RfC8upmEqMos281kB9CQ8aAXfMV2hvUnD7W8SCf6RqA7K7l5x4XfgzFp6umhDh6ntm0jYARcRVa1imdyoSAzJiVmYDZlNDgrQv93rQYK5Ct254PYSz9xBKXj~sd1d-iJX9VuOw__)",
+          "url(https://ik.imagekit.io/pemon1psn/thoi-diem-dep-nhat-de-chinh-phuc-nui-tuyet-titlis-la-vao-mua-dong.jpg?updatedAt=1760520930565)",
         backgroundSize: "cover",
         backgroundPosition: "center",
       },
       value: {
         type: "image",
         style:
-          "url(https://media-hosting.imagekit.io/e4685b3268a147b0/3900141628014723270.webp?Expires=1840862277&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=ep4X6Coij27mZoUxciRW6fo05aN4qkpAoTE1tJY8KWse7nfeDD3P38yE74lFVZWbTA264gao2ts02KKh604FxPf4B5TDghAfJ4ULLUnxGEVX6HOHUOLuv4bbuHYxE8LMdwbF5k5hbO5PKHVYFkwHyDrCzRfOv3wEEfAD8ThbX864xPKTspteD7NMUuDNbBndvsnJxOUbB83ijM53RfC8upmEqMos281kB9CQ8aAXfMV2hvUnD7W8SCf6RqA7K7l5x4XfgzFp6umhDh6ntm0jYARcRVa1imdyoSAzJiVmYDZlNDgrQv93rQYK5Ct254PYSz9xBKXj~sd1d-iJX9VuOw__)",
+          "url(https://ik.imagekit.io/pemon1psn/thoi-diem-dep-nhat-de-chinh-phuc-nui-tuyet-titlis-la-vao-mua-dong.jpg?updatedAt=1760520930565)",
         primaryColor: "#ADD8E6",
       },
     },
